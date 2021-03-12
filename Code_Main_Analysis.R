@@ -17,8 +17,8 @@
 
 library(checkpoint)
 checkpoint(
-  snapshotDate = "2021-02-08",
-  R.version = "4.0.3",
+  snapshotDate = "2021-03-08",
+  R.version = "4.0.4",
   checkpointLocation = tempdir()
 )
 
@@ -170,33 +170,56 @@ data_missings_removed %>%
   select(age, alcohol, deprivation) %>%
   summarise(across(everything(), c(median = median, IQR = IQR)))
 
+# ------ symptom prevalence (table 1): men vs. women
+data_missings_removed %>%
+  group_by(sex) %>%
+  select(-c(age, alcohol, deprivation)) %>%
+  summarise(across(where(is.numeric), ~ mean(.x)))
 
+# ------ moderator descriptive statistics (table 1): men vs. women
+female_male <- data_missings_removed %>% 
+  select(where(is.factor)) %>%
+  group_by(sex) %>%
+  nest() 
 
-data_missings_removed %>% select(-c(
-  "worry",
-  "sleep_pr" ,
-  "anx"  ,
-  "depr"   ,
-  "per",
-  "hal" ,
-  "age" ,
-  "sex",
-  "alcohol"
-)) %>%
-  mutate(
-    ethnicity = ifelse(ethnicity == 1, "no", "yes"),
-    deprivation = ifelse(deprivation == 5, "yes", "no")
-  ) %>%
-  mutate_all(~ ifelse(. == "yes", 1, 0)) %>%
-  mutate_all(as.integer) %>%
-  as.data.frame(.) %>%
-  upset(
-    .,
-    nsets = 10,
-    matrix.color = "steelblue",
-    main.bar.color = "steelblue",
-    sets.bar.color = "steelblue"
-  )
+# female
+  map(female_male$data[[1]], ~ table(.) /
+        nrow(female_male$data[[1]]))
+  
+# male
+  map(female_male$data[[2]], ~ table(.) /
+        nrow(female_male$data[[2]]))
+
+data_missings_removed %>%
+  group_by(sex) %>%
+  select(age, alcohol, deprivation) %>%
+  summarise(across(everything(), c(median = median, IQR = IQR)))
+
+# data_missings_removed %>% select(-c(
+#   "worry",
+#   "sleep_pr" ,
+#   "anx"  ,
+#   "depr"   ,
+#   "per",
+#   "hal" ,
+#   "age" ,
+#   "sex",
+#   "alcohol"
+# )) %>%
+#   mutate(
+#     ethnicity = ifelse(ethnicity == 1, "no", "yes"),
+#     deprivation = ifelse(deprivation == 5, "yes", "no")
+#   ) %>%
+#   mutate_all(~ ifelse(. == "yes", 1, 0)) %>%
+#   mutate_all(as.integer) %>%
+#   as.data.frame(.) %>%
+#   upset(
+#     .,
+#     nsets = 10,
+#     matrix.color = "steelblue",
+#     main.bar.color = "steelblue",
+#     sets.bar.color = "steelblue"
+#   )
 
 
 # -------------------------- 3: Network Estimation --------------------------
@@ -212,25 +235,25 @@ node_names <-
   )
 
 png(filename = "whole_sample.png",
-    width = 300,
-    height = 300)
+    width = 600,
+    height = 600)
 qgraph(
   cor(data_missings_removed %>% .[, 1:6],
       method = "pearson"),
   graph = "pcor",
-  vsize = 10,
+  vsize = 13.5,
   edge.width = 1.75,
   label.cex = 2.25,
   cut = 0,
   borders = T,
-  height = 1,
+  border.width  = 4,
   width = 1,
   minimum = 0.01,
-  maximum = 0.1,
+  maximum = 0.4,
   theme = "colorblind",
   layout = "circle",
   labels = c("1", "2", "3", "4", "5", "6"),
-  color =  c(rep("#f7f5f2", 5),
+  color =  c(rep("#f7f5f2", 4),
              rep("#c5ceed", 2))
 )
 dev.off()
@@ -261,7 +284,7 @@ plot(
   height = 1,
   width = 1,
   minimum = 0.01,
-  maximum = 0.1,
+  maximum = 0.4,
   theme = "colorblind",
   layout = "lock",
   labels = c("1", "2", "3", "4", "5", "6"),
@@ -285,7 +308,7 @@ first_split <-
     data_missings_removed %>% filter(sex == "male") %>% .[, 1:6]
   )
 
-# ------ 5.2: second split: cannabis use in women ------
+# ------ 5.2: second split: sexual abuse in women ------
 # descriptive comparison
 comparetree(apms_networktree,
             id1 = 4,
@@ -303,8 +326,8 @@ second_split <-
   )
 
 png(filename = "women_sexual_abuse_yes.png",
-    width = 300,
-    height = 300)
+    width = 600,
+    height = 600)
 qgraph(
   cor(
     data_missings_removed %>% filter(sex == "female" &
@@ -312,15 +335,15 @@ qgraph(
     method = "pearson"
   ),
   graph = "pcor",
-  vsize = 13,
+  vsize = 13.5,
   edge.width = 1.75,
   label.cex = 2.25,
   cut = 0,
   borders = T,
-  height = 1,
+  border.width  = 4,
   width = 1,
   minimum = 0.01,
-  maximum = 0.1,
+  maximum = 0.4,
   theme = "colorblind",
   layout = "circle",
   labels = c("1", "2", "3", "4", "5", "6"),
@@ -330,8 +353,8 @@ qgraph(
 dev.off()
 
 png(filename = "women_sexual_abuse_no.png",
-    width = 300,
-    height = 300)
+    width = 600,
+    height = 600)
 qgraph(
   cor(
     data_missings_removed %>% filter(sex == "female" &
@@ -339,15 +362,15 @@ qgraph(
     method = "pearson"
   ),
   graph = "pcor",
-  vsize = 13,
+  vsize = 13.5,
   edge.width = 1.75,
   label.cex = 2.25,
   cut = 0,
   borders = T,
-  height = 1,
+  border.width  = 4,
   width = 1,
   minimum = 0.01,
-  maximum = 0.1,
+  maximum = 0.4,
   theme = "colorblind",
   layout = "circle",
   labels = c("1", "2", "3", "4", "5", "6"),
@@ -375,8 +398,8 @@ fourth_split <-
   )
 
 png(filename = "men_domestic_violence_yes.png",
-    width = 300,
-    height = 300)
+    width = 600,
+    height = 600)
 qgraph(
   cor(
     data_missings_removed %>% filter(sex == "male" &
@@ -384,15 +407,15 @@ qgraph(
     method = "pearson"
   ),
   graph = "pcor",
-  vsize = 13,
+  vsize = 13.5,
   edge.width = 1.75,
   label.cex = 2.25,
   cut = 0,
   borders = T,
-  height = 1,
+  border.width  = 4,
   width = 1,
   minimum = 0.01,
-  maximum = 0.1,
+  maximum = 0.4,
   theme = "colorblind",
   layout = "circle",
   labels = c("1", "2", "3", "4", "5", "6"),
@@ -401,7 +424,7 @@ qgraph(
 )
 dev.off()
 
-# ------  5.4: third split: cannabis in men (in violence=no) ------
+# ------  5.4: fourth split: cannabis in men ------
 # descriptive comparison
 comparetree(apms_networktree,
             id1 = 6,
@@ -422,8 +445,8 @@ fifth_split <-
 
 # plotting the respective subgroup network
 png(filename = "men_cannabis_yes.png",
-    width = 300,
-    height = 300)
+    width = 600,
+    height = 600)
 qgraph(
   cor(
     data_missings_removed %>% filter(sex == "male" &
@@ -432,15 +455,15 @@ qgraph(
     method = "pearson"
   ),
   graph = "pcor",
-  vsize = 13,
+  vsize = 13.5,
   edge.width = 1.75,
   label.cex = 2.25,
   cut = 0,
   borders = T,
-  height = 1,
+  border.width  = 4,
   width = 1,
   minimum = 0.01,
-  maximum = 0.1,
+  maximum = 0.4,
   theme = "colorblind",
   layout = "circle",
   labels = c("1", "2", "3", "4", "5", "6"),
@@ -450,7 +473,7 @@ qgraph(
 dev.off()
 
 
-# ------  5.4: third split: cannabis in men (in violence=no) ------
+# ------  5.5: fifth split: ethnic background in men  ------
 # descriptive comparison
 comparetree(apms_networktree,
             id1 = 8,
@@ -461,36 +484,45 @@ comparetree(apms_networktree,
 set.seed(123)
 fifth_split <-
   compare_networks(
-    data_missings_removed %>% filter(sex == "male" &
-                                       violence == "no" &
-                                       cannabis == "no" & ethnicity %in% c(2, 3)) %>% .[, 1:6],
-    data_missings_removed %>% filter(sex == "male" &
-                                        violence == "no" &
-                                       cannabis == "no" & ethnicity %in% c(1, 4)) %>% .[, 1:6]
+    data_missings_removed %>% filter(
+      sex == "male" &
+        violence == "no" &
+        cannabis == "no" &
+        ethnicity %in% c(2, 3)
+    ) %>% .[, 1:6],
+    data_missings_removed %>% filter(
+      sex == "male" &
+        violence == "no" &
+        cannabis == "no" &
+        ethnicity %in% c(1, 4)
+    ) %>% .[, 1:6]
   )
 
 # plotting the respective subgroup network
 png(filename = "men_ethnic_minority.png",
-    width = 300,
-    height = 300)
+    width = 600,
+    height = 600)
 qgraph(
   cor(
-    data_missings_removed %>% filter(sex == "male" &
-                                       violence == "no" &
-                                       cannabis == "no" & ethnicity %in% c(2, 3)) %>% .[, 1:6],
+    data_missings_removed %>% filter(
+      sex == "male" &
+        violence == "no" &
+        cannabis == "no" &
+        ethnicity %in% c(2, 3)
+    ) %>% .[, 1:6],
     
     method = "pearson"
   ),
   graph = "pcor",
-  vsize = 13,
+  vsize = 13.5,
   edge.width = 1.75,
   label.cex = 2.25,
   cut = 0,
   borders = T,
-  height = 1,
+  border.width  = 4,
   width = 1,
   minimum = 0.01,
-  maximum = 0.1,
+  maximum = 0.4,
   theme = "colorblind",
   layout = "circle",
   labels = c("1", "2", "3", "4", "5", "6"),
@@ -499,11 +531,11 @@ qgraph(
 )
 dev.off()
 
-# ------ 5.7: seventh split: ethnicity ------
+# ------ 5.6: sixth split: bullying in men ------
 # descriptive comparison
-comparetree(ets,
-            id1 = 8,
-            id2 = 5,
+comparetree(apms_networktree,
+            id1 = 11,
+            id2 = 10,
             highlights = 3)
 
 # statistical comparison
@@ -512,20 +544,20 @@ fifth_split <-
   compare_networks(
     data_missings_removed %>% filter(
       sex == "male" &
-         violence == "no" &
+        violence == "no" &
         cannabis == "no" &
         ethnicity %in% c(1, 4) & bullying == "yes"
     ) %>% .[, 1:6],
     data_missings_removed %>% filter(
       sex == "male" &
-         violence == "no" &
+        violence == "no" &
         cannabis == "no" & ethnicity %in% c(1, 4) & bullying == "no"
     ) %>% .[, 1:6]
   )
 
 png(filename = "men_ethnic_majority_bullying_yes.png",
-    width = 300,
-    height = 300)
+    width = 600,
+    height = 600)
 qgraph(
   cor(
     data_missings_removed %>% filter(
@@ -538,15 +570,15 @@ qgraph(
     method = "pearson"
   ),
   graph = "pcor",
-  vsize = 13,
+  vsize = 13.5,
   edge.width = 1.75,
   label.cex = 2.25,
   cut = 0,
   borders = T,
-  height = 1,
+  border.width  = 4,
   width = 1,
   minimum = 0.01,
-  maximum = 0.1,
+  maximum = 0.4,
   theme = "colorblind",
   layout = "circle",
   labels = c("1", "2", "3", "4", "5", "6"),
@@ -557,8 +589,8 @@ dev.off()
 
 
 png(filename = "men_ethnic_majority_bullying_no.png",
-    width = 300,
-    height = 300)
+    width = 600,
+    height = 600)
 qgraph(
   cor(
     data_missings_removed %>% filter(
@@ -571,15 +603,68 @@ qgraph(
     method = "pearson"
   ),
   graph = "pcor",
-  vsize = 13,
+  vsize = 13.5,
   edge.width = 1.75,
   label.cex = 2.25,
   cut = 0,
   borders = T,
-  height = 1,
+  border.width  = 4,
   width = 1,
   minimum = 0.01,
-  maximum = 0.1,
+  maximum = 0.4,
+  theme = "colorblind",
+  layout = "circle",
+  labels = c("1", "2", "3", "4", "5", "6"),
+  color =  c(rep("#f7f5f2", 4),
+             rep("#c5ceed", 2))
+)
+dev.off()
+
+# -------- Figure 2: networks of women vs. men ------
+png(filename = "women.png",
+    width = 900,
+    height = 900)
+qgraph(
+  cor(
+    data_missings_removed %>% filter(sex == "female") %>% .[, 1:6],
+    method = "pearson"
+  ),
+  graph = "pcor",
+  vsize = 10,
+  edge.width = 1.75,
+  label.cex = 2.25,
+  cut = 0,
+  borders = T,
+  border.width  = 1,
+  width = 1,
+  minimum = 0.01,
+  maximum = 0.4,
+  theme = "colorblind",
+  layout = "circle",
+  labels = c("1", "2", "3", "4", "5", "6"),
+  color =  c(rep("#f7f5f2", 4),
+             rep("#c5ceed", 2))
+)
+dev.off()
+
+png(filename = "men.png",
+    width = 900,
+    height = 900)
+qgraph(
+  cor(
+    data_missings_removed %>% filter(sex == "male") %>% .[, 1:6],
+    method = "pearson"
+  ),
+  graph = "pcor",
+  vsize = 10,
+  edge.width = 1.75,
+  label.cex = 2.25,
+  cut = 0,
+  borders = T,
+  border.width  = 1,
+  width = 1,
+  minimum = 0.01,
+  maximum = 0.4,
   theme = "colorblind",
   layout = "circle",
   labels = c("1", "2", "3", "4", "5", "6"),
