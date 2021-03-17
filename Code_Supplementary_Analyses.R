@@ -1,12 +1,14 @@
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     Code for    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-#                                                                                                     #
-#            #             #
-#                         #                           #
-#                                     developed by L. Betz                                            #
-#                                                                                                     #
-#                               - Analysis reported in supplementaries -                              #
-#                                                                                                     #
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     Code for    ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+#
+#              Disentangling heterogeneity in the psychosis spectrum: 
+#          sex-specific moderation effects of environmental risk factors 
+#                               on symptom networks  
+#
+#
+#
+#                   - Analysis reported in supplementary materials -
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 # ---------------------------------- 0: Reproducibility  -----------------------------------
 
 # for reproducibility, one can use the "checkpoint" package
@@ -17,11 +19,10 @@
 
 library(checkpoint)
 checkpoint(
-  snapshotDate = "2020-11-07",
-  R.version = "4.0.3",
+  snapshotDate = "2021-03-08",
+  R.version = "4.0.4",
   checkpointLocation = tempdir()
 )
-
 # ---------------------------------- 1: Load packages & data -----------------------------------
 # ------- 1.1 load packages -------
 library(haven)
@@ -127,7 +128,7 @@ data_included_excluded %>%
 
 # frequency data
 data_included_excluded %>%
-  select(.,-c(age, alcohol, deprivation, ethnicity)) %>%
+  select(., -c(age, alcohol, deprivation, ethnicity)) %>%
   mutate(across(
     where(is.factor),
     ~ case_when(
@@ -140,10 +141,10 @@ data_included_excluded %>%
   summarise(across(everything(), ~ mean(.x, na.rm = TRUE))) %>%
   mutate(across(where(is.numeric), ~ round(., 3)))
 
-excluded <- data_included_excluded %>% 
-  filter(included_excluded=="excluded") 
+excluded <- data_included_excluded %>%
+  filter(included_excluded == "excluded")
 
-round(table(excluded$ethnicity)/96, 3)
+round(table(excluded$ethnicity) / 96, 3)
 
 # ------- 2.3 statistical comparison -------
 # interval data
@@ -161,7 +162,7 @@ data_included_excluded %>%
 # frequency data
 set.seed(1)
 data_included_excluded %>%
-  select(., -c(age, alcohol, deprivation, included_excluded)) %>%
+  select(.,-c(age, alcohol, deprivation, included_excluded)) %>%
   map(
     ~ chisq_test(
       as.factor(.) ~ as.factor(data_included_excluded$included_excluded),
@@ -255,3 +256,74 @@ sixth_split_grp2 <-
         ethnicity %in% c(1, 4) & bullying == "no"
     ) %>% .[, 1:6]
   ) # 0.7498855
+
+
+
+### -- Supplementary figure 1
+
+data_missings_removed %>%
+  mutate(
+    group = case_when(
+      sex == "female" & sexual_abuse == "yes" ~ "women: sexual abuse",
+      sex == "female" &
+        sexual_abuse == "no" ~ "women: no sexual abuse",
+      sex == "male" &
+        violence == "yes" ~ "men: domestic violence",
+      sex == "male" &
+        violence == "no" &
+        cannabis == "yes" ~ "men: no domestic violence, cannabis use",
+      sex == "male" &
+        violence == "no" &
+        cannabis == "no" &
+        ethnicity %in% c(2, 3) ~ "men: no domestic violence, no cannabis use, ethnic minority",
+      sex == "male" &
+        violence == "no" &
+        cannabis == "no" &
+        ethnicity %in% c(1, 4) &
+        bullying == "yes" ~ "men: no domestic violence, no cannabis use, ethnic majority, bullying",
+      sex == "male" &
+        violence == "no" &
+        cannabis == "no" &
+        ethnicity %in% c(1, 4) &
+        bullying == "no" ~ "men: no domestic violence, no cannabis use, ethnic majority, no bullying",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  group_by(group) %>%
+  nest() %>%
+  mutate(nets = map(
+    data,
+    . %>% select(c(
+      "worry" , "sleep_pr", "anx", "depr", "per", "hal"
+    )) %>% bootnet::estimateNetwork(
+      .,
+      default = "pcor",
+      corMethod = "cor",
+      alpha = 1
+    ) %>% .$graph
+  )) %>%
+  mutate(global_strength = map_dbl(nets, ~ abs(sum(abs(
+    .[upper.tri(.)]
+  ))))) %>%
+  ungroup() %>%
+  mutate(group = reorder(group, global_strength)) %>%
+  ggplot(., aes(x = group, y = global_strength)) +
+  geom_bar(stat = "identity", fill = "#6884d5") +
+  theme_classic() +
+  scale_fill_viridis_d() +
+  geom_hline(yintercept =  1.740785,
+             linetype = "dashed",
+             size = 1) +
+  coord_flip() +
+  ylab("\nGlobal Strength") +
+  xlab("") +
+  theme(
+    axis.title = element_text(size = 16, color = "black"),
+    axis.text = element_text(size = 14, color = "black")
+  )
+ggsave(
+  "supplementary_figure_1.png",
+  width = 12,
+  height = 6,
+  dpi = 400
+)
