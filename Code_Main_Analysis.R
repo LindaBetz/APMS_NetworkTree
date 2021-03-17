@@ -1,6 +1,8 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     Code for    ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 #
-#
+#              Disentangling heterogeneity in the psychosis spectrum: 
+#          sex-specific moderation effects of environmental risk factors 
+#                               on symptom networks  
 #
 #
 #
@@ -194,32 +196,6 @@ data_missings_removed %>%
   group_by(sex) %>%
   select(age, alcohol, deprivation) %>%
   summarise(across(everything(), c(median = median, IQR = IQR)))
-
-# data_missings_removed %>% select(-c(
-#   "worry",
-#   "sleep_pr" ,
-#   "anx"  ,
-#   "depr"   ,
-#   "per",
-#   "hal" ,
-#   "age" ,
-#   "sex",
-#   "alcohol"
-# )) %>%
-#   mutate(
-#     ethnicity = ifelse(ethnicity == 1, "no", "yes"),
-#     deprivation = ifelse(deprivation == 5, "yes", "no")
-#   ) %>%
-#   mutate_all(~ ifelse(. == "yes", 1, 0)) %>%
-#   mutate_all(as.integer) %>%
-#   as.data.frame(.) %>%
-#   upset(
-#     .,
-#     nsets = 10,
-#     matrix.color = "steelblue",
-#     main.bar.color = "steelblue",
-#     sets.bar.color = "steelblue"
-#   )
 
 
 # -------------------------- 3: Network Estimation --------------------------
