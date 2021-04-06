@@ -35,6 +35,8 @@ library(tidyverse)
 
 # ------- 1.2 define custom functions -------
 global_strength <- function(data1, data2) {
+  # definition of global strength: 
+  # https://github.com/cvborkulo/NetworkComparisonTest/blob/master/R/NCT.R
   # estimate graphs
   fit1 <-  BGGM::estimate(data1, analytic = TRUE)
   fit2 <-  BGGM::estimate(data2, analytic = TRUE)
@@ -45,6 +47,20 @@ global_strength <- function(data1, data2) {
   sel2 <- BGGM::select(fit2, cred = 0)
   
   abs(sum(abs(sel1$pcor_adj[upper.tri(sel1$pcor_adj)])) - sum(abs(sel2$pcor_adj[upper.tri(sel2$pcor_adj)])))
+}
+
+individual_global_strength <- function(data1, data2) {
+  fit1 <-  BGGM::estimate(data1, analytic = TRUE)
+  fit2 <-  BGGM::estimate(data2, analytic = TRUE)
+  
+  # select graphs
+  sel1 <-
+    BGGM::select(fit1, cred = 0) # cred = 0 => no "pruning" of edges
+  sel2 <- BGGM::select(fit2, cred = 0)
+  
+  return(list(sum(abs(sel1$pcor_adj[upper.tri(sel1$pcor_adj)])),
+         sum(abs(sel2$pcor_adj[upper.tri(sel2$pcor_adj)]))))
+  
 }
 
 # custom function to compare networks in relevant aspects (global strength, individual connections)
@@ -69,6 +85,9 @@ compare_networks <- function(data1,
     global_strength(data1,
                     data2)
   
+ ind_gs <- individual_global_strength(data1,
+                             data2)
+  
   res_gs <- ggm_compare_ppc(
     data1,
     data2,
@@ -82,6 +101,8 @@ compare_networks <- function(data1,
     list(
       individual_edges = individual_edges,
       global_strength_diff = obs_gs,
+      global_strength_group_1 = ind_gs[[1]],
+        global_strength_group_2 = ind_gs[[2]],
       global_strength_p_val = res_gs$ppp_custom
     )
   )
@@ -365,7 +386,7 @@ comparetree(apms_networktree,
 
 # statistical comparison
 set.seed(123)
-fourth_split <-
+third_split <-
   compare_networks(
     data_missings_removed %>% filter(sex == "male" &
                                        violence == "yes") %>% .[, 1:6],
@@ -409,7 +430,7 @@ comparetree(apms_networktree,
 
 # statistical comparison
 set.seed(123)
-fifth_split <-
+fourth_split <-
   compare_networks(
     data_missings_removed %>% filter(sex == "male" &
                                        violence == "no" &
@@ -516,7 +537,7 @@ comparetree(apms_networktree,
 
 # statistical comparison
 set.seed(123)
-fifth_split <-
+sixth_split <-
   compare_networks(
     data_missings_removed %>% filter(
       sex == "male" &
@@ -613,8 +634,11 @@ qgraph(
   borders = T,
   border.width  = 1,
   width = 1,
-  minimum = 0.01,
+  minimum = 0,
   maximum = 0.4,
+  edge.labels = TRUE,
+  edge.label.color="black",
+  edge.label.position=0.55,
   theme = "colorblind",
   layout = "circle",
   labels = c("1", "2", "3", "4", "5", "6"),
@@ -639,8 +663,11 @@ qgraph(
   borders = T,
   border.width  = 1,
   width = 1,
-  minimum = 0.01,
+  minimum = 0,
   maximum = 0.4,
+  edge.labels = TRUE,
+  edge.label.color="black",
+  edge.label.position=0.55,
   theme = "colorblind",
   layout = "circle",
   labels = c("1", "2", "3", "4", "5", "6"),
