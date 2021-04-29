@@ -1,8 +1,8 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     Code for    ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 #
-#              Disentangling heterogeneity in the psychosis spectrum: 
-#          sex-specific moderation effects of environmental risk factors 
-#                               on symptom networks  
+#              Disentangling heterogeneity of psychosis expression
+#             in the general population: sex-specific moderation effects
+#               of environmental risk factors on symptom networks
 #
 #
 #
@@ -11,8 +11,8 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # -------------------------- 0: Reproducibility -----------------------------
 
-# for reproducibility, one can use the "checkpoint" package
-# in a temporary directory, it will *install* those package versions used when the script was written
+# for reproducibility, we use the "checkpoint" package
+# in a temporary directory, it will *install* package versions used when the script was written
 # these versions are then used to run the script
 # to this end, a server with snapshot images of archived package versions needs to be contacted
 # for more info visit: https://mran.microsoft.com/documents/rro/reproducibility
@@ -24,8 +24,8 @@ checkpoint(
   checkpointLocation = tempdir()
 )
 
-# -------------------------- 1: Load packages & data -----------------------------
-# ------- 1.1 load packages -------
+# -------------------------- 1: Load packages & data ---------------------------
+# ------ 1.1: load packages
 library(haven)
 library(networktree)
 library(bootnet)
@@ -33,9 +33,9 @@ library(qgraph)
 library(BGGM)
 library(tidyverse)
 
-# ------- 1.2 define custom functions -------
+# ------ 1.2: define custom functions 
 global_strength <- function(data1, data2) {
-  # definition of global strength: 
+  # global strength as defined in:
   # https://github.com/cvborkulo/NetworkComparisonTest/blob/master/R/NCT.R
   # estimate graphs
   fit1 <-  BGGM::estimate(data1, analytic = TRUE)
@@ -59,7 +59,7 @@ individual_global_strength <- function(data1, data2) {
   sel2 <- BGGM::select(fit2, cred = 0)
   
   return(list(sum(abs(sel1$pcor_adj[upper.tri(sel1$pcor_adj)])),
-         sum(abs(sel2$pcor_adj[upper.tri(sel2$pcor_adj)]))))
+              sum(abs(sel2$pcor_adj[upper.tri(sel2$pcor_adj)]))))
   
 }
 
@@ -85,8 +85,8 @@ compare_networks <- function(data1,
     global_strength(data1,
                     data2)
   
- ind_gs <- individual_global_strength(data1,
-                             data2)
+  ind_gs <- individual_global_strength(data1,
+                                       data2)
   
   res_gs <- ggm_compare_ppc(
     data1,
@@ -102,25 +102,27 @@ compare_networks <- function(data1,
       individual_edges = individual_edges,
       global_strength_diff = obs_gs,
       global_strength_group_1 = ind_gs[[1]],
-        global_strength_group_2 = ind_gs[[2]],
+      global_strength_group_2 = ind_gs[[2]],
       global_strength_p_val = res_gs$ppp_custom
     )
   )
 }
 
-# ------- 1.3 load 2007 AMPS data -------
+
+# ------ 1.3: load 2007 AMPS data 
 apms07arch <-
   read_sav("UKDA-6379-spss/spss/spss19/apms07arch.sav")
 
-# ------- 1.4 data preparation -------
+# ------ 1.4: data preparation
 data_apms <- apms07arch %>%
   transmute(
-    # symptoms
+    # definition of symptoms following Moffa et al., 2017
+    # affective symptoms
     worry = case_when(I10 > 1 ~ 1, is.na(I1) ~ NA_real_, TRUE ~ 0),
     sleep_pr = case_when(D10 > 1 ~ 1,  is.na(D1) ~ NA_real_, TRUE ~ 0),
     anx = case_when(J11 > 1 ~ 1, is.na(J1) ~ NA_real_, TRUE ~ 0),
     depr = case_when(G10 > 1 ~ 1, is.na(G1) ~ NA_real_, TRUE ~ 0),
-    # psychosis
+    # psychosis symptoms
     per = ifelse(PSQ3 == 1 & PSQ3a == 1, 1, 0),
     hal = ifelse(PSQ5 == 1 & PSQ5a == 1, 1, 0),
     # potential moderators/split variables
@@ -165,62 +167,78 @@ data_apms <- apms07arch %>%
     deprivation = as.numeric(qimd)
   )
 
-# -------------------------- 2: Sample descriptives --------------------------
-# ------- n participants with missing data
+# -------------------------- 2: Sample Descriptives --------------------------
+# n participants with missing data =
 data_apms %>%
   mutate(any_NA = rowSums(is.na(.))) %>%
   filter(any_NA > 0) %>% nrow(.) # 146 participants have any variable missing
 
-# ------- % participants with missing data
+# % participants with missing data
 146 / nrow(data_apms)  # 0.01972173
 
 
 data_missings_removed <- data_apms  %>% na.omit()
-nrow(data_missings_removed) # 7257
+nrow(data_missings_removed) # 7257 (= total sample size)
 
-# ------- symptom prevalence (table 1)
+# Table 1: whole sample
+# frequency data
 data_missings_removed %>%
-  select(-c(age, alcohol, deprivation)) %>%
-  summarise(across(where(is.numeric), ~ mean(.x)))
+  select(., -c(age, alcohol, deprivation, ethnicity)) %>%
+  mutate(across(
+    where(is.factor),
+    ~ case_when(
+      . %in% c("yes", "female") ~ 1,
+      . %in% c("no", "male") ~ 0,
+      TRUE ~ NA_real_
+    )
+  )) %>%
+  summarise(across(where(is.numeric), ~ mean(.x))) %>%
+  mutate(across(where(is.numeric), ~ round(., 3)))
+
+# ethnicity
+round(table(data_missings_removed$ethnicity) / nrow(data_missings_removed),
+      3)
 
 
-# ------- moderator descriptive statistics (table 1)
-data_missings_removed %>% select(where(is.factor)) %>%
-  map(., ~ table(.) /
-        nrow(data_missings_removed))
-
+# interval data
 data_missings_removed %>%
   select(age, alcohol, deprivation) %>%
   summarise(across(everything(), c(median = median, IQR = IQR)))
 
-# ------ symptom prevalence (table 1): men vs. women
+# Table 1: men vs. women
+# frequency data
 data_missings_removed %>%
   group_by(sex) %>%
-  select(-c(age, alcohol, deprivation)) %>%
-  summarise(across(where(is.numeric), ~ mean(.x)))
+  select(., -c(age, alcohol, deprivation, ethnicity)) %>%
+  mutate(across(
+    where(is.factor),
+    ~ case_when(
+      . %in% c("yes", "female") ~ 1,
+      . %in% c("no", "male") ~ 0,
+      TRUE ~ NA_real_
+    )
+  )) %>%
+  summarise(across(where(is.numeric), ~ mean(.x))) %>%
+  mutate(across(where(is.numeric), ~ round(., 3)))
 
-# ------ moderator descriptive statistics (table 1): men vs. women
-female_male <- data_missings_removed %>% 
-  select(where(is.factor)) %>%
-  group_by(sex) %>%
-  nest() 
+# ethnicity women
+round(table(data_missings_removed[data_missings_removed$sex == "female", ]$ethnicity) /
+        nrow(data_missings_removed[data_missings_removed$sex == "female", ]),
+      3)
 
-# female
-  map(female_male$data[[1]], ~ table(.) /
-        nrow(female_male$data[[1]]))
-  
-# male
-  map(female_male$data[[2]], ~ table(.) /
-        nrow(female_male$data[[2]]))
+# ethnicity men
+round(table(data_missings_removed[data_missings_removed$sex == "male", ]$ethnicity) /
+        nrow(data_missings_removed[data_missings_removed$sex == "male", ]),
+      3)
 
+# interval data
 data_missings_removed %>%
   group_by(sex) %>%
   select(age, alcohol, deprivation) %>%
   summarise(across(everything(), c(median = median, IQR = IQR)))
-
 
 # -------------------------- 3: Network Estimation --------------------------
-# -------------- estimate & plot network based on whole sample
+# estimate & plot network based on whole sample
 node_names <-
   c(
     "worry",
@@ -256,7 +274,6 @@ qgraph(
 dev.off()
 
 # -------------------------- 4: Recursive Partitioning --------------------------
-
 set.seed(234)
 apms_networktree <- networktree(
   nodevars = data_missings_removed[, 1:6],
@@ -264,33 +281,15 @@ apms_networktree <- networktree(
   splitvars = data_missings_removed[, 7:ncol(data_missings_removed)],
   # risk factors
   method = "mob",
-  #default method
+  # default method
   model = c("correlation"),
   transform = "pcor",
-  minsize = ceiling(nrow(data_missings_removed) * 0.01)
+  minsize = ceiling(nrow(data_missings_removed) * 0.01) # minimal size terminal node
 )
 
-# plotting for overview only; actual figure 2 was made in PowerPoint
-plot(
-  apms_networktree,
-  vsize = 10,
-  edge.width = 2.5,
-  label.cex = 2.5,
-  cut = 0,
-  borders = T,
-  height = 1,
-  width = 1,
-  minimum = 0.01,
-  maximum = 0.4,
-  theme = "colorblind",
-  layout = "lock",
-  labels = c("1", "2", "3", "4", "5", "6"),
-  color =  c(rep("#f7f5f2", 4),
-             rep("#c5ceed", 2))
-)
 
-# ---------------------------------- 5: Subgroup Differences -----------------------------------
-# ------ 5.1: first split: women vs. men ------
+# -------------------------- 5: Subgroup Differences ---------------------------
+# ------ 5.1: first split: women vs. men 
 # descriptive comparison
 comparetree(apms_networktree,
             id1 = 2,
@@ -305,7 +304,7 @@ first_split <-
     data_missings_removed %>% filter(sex == "male") %>% .[, 1:6]
   )
 
-# ------ 5.2: second split: sexual abuse in women ------
+# ------ 5.2: second split: sexual abuse in women 
 # descriptive comparison
 comparetree(apms_networktree,
             id1 = 4,
@@ -377,7 +376,7 @@ qgraph(
 dev.off()
 
 
-# ------ 5.3: third split: domestic violence in men ------
+# ------ 5.3: third split: domestic violence in men
 # descriptive comparison
 comparetree(apms_networktree,
             id1 = 9,
@@ -421,11 +420,11 @@ qgraph(
 )
 dev.off()
 
-# ------  5.4: fourth split: cannabis in men ------
+# ------ 5.4: fourth split: cannabis in men 
 # descriptive comparison
 comparetree(apms_networktree,
-            id1 = 6,
-            id2 = 5,
+            id1 = 12,
+            id2 = 6,
             highlights = 3)
 
 # statistical comparison
@@ -470,7 +469,7 @@ qgraph(
 dev.off()
 
 
-# ------  5.5: fifth split: ethnic background in men  ------
+# ------5.5: fifth split: ethnic background in men 
 # descriptive comparison
 comparetree(apms_networktree,
             id1 = 8,
@@ -528,7 +527,7 @@ qgraph(
 )
 dev.off()
 
-# ------ 5.6: sixth split: bullying in men ------
+# ------ 5.6: sixth split: bullying in men
 # descriptive comparison
 comparetree(apms_networktree,
             id1 = 11,
@@ -617,15 +616,35 @@ qgraph(
 )
 dev.off()
 
-# -------- Figure 2: networks of women vs. men ------
+# -------------------------- 6: Figures --------------------------
+# ------ Figure 2
+# plotting for overview only; Figure 2 was edited in PowerPoint
+plot(
+  apms_networktree,
+  vsize = 10,
+  edge.width = 2.5,
+  label.cex = 2.5,
+  cut = 0,
+  borders = T,
+  height = 1,
+  width = 1,
+  minimum = 0.01,
+  maximum = 0.4,
+  theme = "colorblind",
+  layout = "circle",
+  labels = c("1", "2", "3", "4", "5", "6"),
+  color =  c(rep("#f7f5f2", 4),
+             rep("#c5ceed", 2))
+)
+# ------ Figure 3: networks of women vs. men 
+# plotting for overview only; Figure 3 was edited in PowerPoint
+
 png(filename = "women.png",
     width = 900,
     height = 900)
 qgraph(
-  cor(
-    data_missings_removed %>% filter(sex == "female") %>% .[, 1:6],
-    method = "pearson"
-  ),
+  cor(data_missings_removed %>% filter(sex == "female") %>% .[, 1:6],
+      method = "pearson"),
   graph = "pcor",
   vsize = 10,
   edge.width = 1.75,
@@ -637,8 +656,8 @@ qgraph(
   minimum = 0,
   maximum = 0.4,
   edge.labels = TRUE,
-  edge.label.color="black",
-  edge.label.position=0.55,
+  edge.label.color = "black",
+  edge.label.position = 0.55,
   theme = "colorblind",
   layout = "circle",
   labels = c("1", "2", "3", "4", "5", "6"),
@@ -651,10 +670,8 @@ png(filename = "men.png",
     width = 900,
     height = 900)
 qgraph(
-  cor(
-    data_missings_removed %>% filter(sex == "male") %>% .[, 1:6],
-    method = "pearson"
-  ),
+  cor(data_missings_removed %>% filter(sex == "male") %>% .[, 1:6],
+      method = "pearson"),
   graph = "pcor",
   vsize = 10,
   edge.width = 1.75,
@@ -666,8 +683,8 @@ qgraph(
   minimum = 0,
   maximum = 0.4,
   edge.labels = TRUE,
-  edge.label.color="black",
-  edge.label.position=0.55,
+  edge.label.color = "black",
+  edge.label.position = 0.55,
   theme = "colorblind",
   layout = "circle",
   labels = c("1", "2", "3", "4", "5", "6"),
