@@ -9,6 +9,6 @@ There are two files:
 - Code_Main_Analysis.R provides code to reproduce findings reported in the main manuscript.
 - Code_Supplementary_Analysis.R provides code to reproduce findings reported in the supplementary materials.
 
-Data used in the analysis is available from the UK Data Service at https://ukdataservice.ac.uk.
+Data used in the analysis is available from the UK Data Service at https://ukdataservice.ac.uk. For methodological details on the NetworkTree-approach, see Jones, Mair, Simon, & Zeileis (2020).
 
 For optimal reproducibility, we use the R-package "checkpoint", with snapshot date March 8, 2021 (R version 4.0.4). Information on how this works can be found at https://mran.microsoft.com/documents/rro/reproducibility.
