@@ -9,7 +9,7 @@
 #                   - Analysis reported in main manuscript -
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# -------------------------- 0: Reproducibility -----------------------------
+# ---------------------- 0: Reproducibility ----------------------
 
 # for reproducibility, we use the "checkpoint" package
 # in a temporary directory, it will *install* package versions used when the script was written
@@ -24,7 +24,7 @@ checkpoint(
   checkpointLocation = tempdir()
 )
 
-# -------------------------- 1: Load packages & data ---------------------------
+# ---------------------- 1: Load packages & data ----------------------
 # ------ 1.1: load packages
 library(haven)
 library(networktree)
@@ -167,7 +167,7 @@ data_apms <- apms07arch %>%
     deprivation = as.numeric(qimd)
   )
 
-# -------------------------- 2: Sample Descriptives --------------------------
+# ---------------------- 2: Sample Descriptives ----------------------
 # n participants with missing data =
 data_apms %>%
   mutate(any_NA = rowSums(is.na(.))) %>%
@@ -237,7 +237,7 @@ data_missings_removed %>%
   select(age, alcohol, deprivation) %>%
   summarise(across(everything(), c(median = median, IQR = IQR)))
 
-# -------------------------- 3: Network Estimation --------------------------
+# ---------------------- 3: Network Estimation ----------------------
 # estimate & plot network based on whole sample
 node_names <-
   c(
@@ -273,7 +273,7 @@ qgraph(
 )
 dev.off()
 
-# -------------------------- 4: Recursive Partitioning --------------------------
+# ---------------------- 4: Recursive Partitioning ----------------------
 set.seed(234)
 apms_networktree <- networktree(
   nodevars = data_missings_removed[, 1:6],
@@ -288,7 +288,7 @@ apms_networktree <- networktree(
 )
 
 
-# -------------------------- 5: Subgroup Differences ---------------------------
+# ---------------------- 5: Subgroup Differences ----------------------
 # ------ 5.1: first split: women vs. men 
 # descriptive comparison
 comparetree(apms_networktree,
@@ -616,7 +616,7 @@ qgraph(
 )
 dev.off()
 
-# -------------------------- 6: Figures --------------------------
+# ---------------------- 6: Figures ----------------------
 # ------ Figure 2
 # plotting for overview only; Figure 2 was edited in PowerPoint
 plot(
