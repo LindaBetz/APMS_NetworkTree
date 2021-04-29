@@ -290,12 +290,6 @@ apms_networktree <- networktree(
 
 # ---------------------- 5: Subgroup Differences ----------------------
 # ------ 5.1: first split: women vs. men 
-# descriptive comparison
-comparetree(apms_networktree,
-            id1 = 2,
-            id2 = 5,
-            highlights = 3)
-
 # statistical comparison
 set.seed(123)
 first_split <-
@@ -305,12 +299,6 @@ first_split <-
   )
 
 # ------ 5.2: second split: sexual abuse in women 
-# descriptive comparison
-comparetree(apms_networktree,
-            id1 = 4,
-            id2 = 3,
-            highlights = 3)
-
 # statistical comparison
 set.seed(123)
 second_split <-
@@ -377,12 +365,6 @@ dev.off()
 
 
 # ------ 5.3: third split: domestic violence in men
-# descriptive comparison
-comparetree(apms_networktree,
-            id1 = 9,
-            id2 = 4,
-            highlights = 3)
-
 # statistical comparison
 set.seed(123)
 third_split <-
@@ -421,12 +403,6 @@ qgraph(
 dev.off()
 
 # ------ 5.4: fourth split: cannabis in men 
-# descriptive comparison
-comparetree(apms_networktree,
-            id1 = 12,
-            id2 = 6,
-            highlights = 3)
-
 # statistical comparison
 set.seed(123)
 fourth_split <-
@@ -470,12 +446,6 @@ dev.off()
 
 
 # ------5.5: fifth split: ethnic background in men 
-# descriptive comparison
-comparetree(apms_networktree,
-            id1 = 8,
-            id2 = 9,
-            highlights = 3)
-
 # statistical comparison
 set.seed(123)
 fifth_split <-
@@ -528,12 +498,6 @@ qgraph(
 dev.off()
 
 # ------ 5.6: sixth split: bullying in men
-# descriptive comparison
-comparetree(apms_networktree,
-            id1 = 11,
-            id2 = 10,
-            highlights = 3)
-
 # statistical comparison
 set.seed(123)
 sixth_split <-
