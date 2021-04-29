@@ -1,21 +1,22 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     Code for    ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 #
-#              Disentangling heterogeneity in the psychosis spectrum: 
-#          sex-specific moderation effects of environmental risk factors 
-#                               on symptom networks  
+#              Disentangling heterogeneity of psychosis expression 
+#             in the general population: sex-specific moderation effects 
+#               of environmental risk factors on symptom networks  
 #
 #
 #
-#                   - Analysis reported in supplementary materials -
+#                 - Analysis reported in supplementary material -
 #
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-# ---------------------------------- 0: Reproducibility  -----------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # 
+# ---------------------- 0: Reproducibility -----------------------------
 
-# for reproducibility, one can use the "checkpoint" package
-# in a temporal directory, it will *install* those package versions used when the script was written
+# for reproducibility, we use the "checkpoint" package
+# in a temporary directory, it will *install* package versions used when the script was written
 # these versions are then used to run the script
 # to this end, a server with snapshot images of archived package versions needs to be contacted
 # for more info visit: https://mran.microsoft.com/documents/rro/reproducibility
+
 
 library(checkpoint)
 checkpoint(
@@ -23,8 +24,8 @@ checkpoint(
   R.version = "4.0.4",
   checkpointLocation = tempdir()
 )
-# ---------------------------------- 1: Load packages & data -----------------------------------
-# ------- 1.1 load packages -------
+# ---------------------- 1: Load packages & data -----------------------------------
+# ------ 1.1 load packages 
 library(haven)
 library(networktree)
 library(bootnet)
@@ -33,7 +34,8 @@ library(BGGM)
 library(coin)
 library(tidyverse)
 
-# ------- 1.2 define custom function -------
+# ------ 1.2 define custom function 
+# for checking stability of estimated networks
 check_stability <- function(data, iters = 5000) {
   out <-  estimateNetwork(data, default = "pcor", alpha = 1)
   set.seed(1)
@@ -50,20 +52,20 @@ check_stability <- function(data, iters = 5000) {
   return(res)
 }
 
-# ------- 1.3 load 2007 AMPS data -------
+# ------ 1.3 load 2007 AMPS data 
 apms07arch <-
   read_sav("UKDA-6379-spss/spss/spss19/apms07arch.sav")
 
-# ------- 1.4 data preparation -------
-# ------- 1.4 data preparation -------
+# ------- 1.4 data preparation 
 data_apms <- apms07arch %>%
   transmute(
-    # symptoms
+    # definition of symptoms following Moffa et al., 2017
+    # affective symptoms
     worry = case_when(I10 > 1 ~ 1, is.na(I1) ~ NA_real_, TRUE ~ 0),
     sleep_pr = case_when(D10 > 1 ~ 1,  is.na(D1) ~ NA_real_, TRUE ~ 0),
     anx = case_when(J11 > 1 ~ 1, is.na(J1) ~ NA_real_, TRUE ~ 0),
     depr = case_when(G10 > 1 ~ 1, is.na(G1) ~ NA_real_, TRUE ~ 0),
-    # psychosis
+    # psychosis symptoms
     per = ifelse(PSQ3 == 1 & PSQ3a == 1, 1, 0),
     hal = ifelse(PSQ5 == 1 & PSQ5a == 1, 1, 0),
     # potential moderators/split variables
@@ -108,15 +110,15 @@ data_apms <- apms07arch %>%
     deprivation = as.numeric(qimd)
   )
 
-data_missings_removed <- data_apms  %>% na.omit()
+data_missings_removed <- data_apms %>% na.omit()
 
 
-# ---------------------------------- 2: Supplementary Table 1: differences in included vs. excluded participants  -----------------------------------
-# ------- 2.1 data preparation -------
+# ---------------------- 2: Supplementary Table 1: differences in included vs. excluded participants ---------------------- 
+# ------ 2.1 data preparation 
 data_included_excluded <- data_apms %>%
   mutate(included_excluded = if_else(rowSums(is.na(.)) > 0, "excluded", "included"))
 
-# ------- 2.2 descriptive statistics -------
+# ------- 2.2 descriptive statistics 
 # interval data
 data_included_excluded %>%
   select(., c(age, alcohol, deprivation, included_excluded)) %>%
@@ -144,9 +146,9 @@ data_included_excluded %>%
 excluded <- data_included_excluded %>%
   filter(included_excluded == "excluded")
 
-round(table(excluded$ethnicity) / 96, 3)
+round(table(excluded$ethnicity) / sum(!is.na(excluded$ethnicity)), 3)
 
-# ------- 2.3 statistical comparison -------
+# ------- 2.3 statistical comparison 
 # interval data
 set.seed(1)
 data_included_excluded %>%
@@ -171,12 +173,12 @@ data_included_excluded %>%
     )
   )
 
-# ---------------------------------- 3: Supplementary Table 2: stability of results -----------------------------------
-# ------ 3.1 full sample ------
+# ---------------------- 3: Supplementary Table 2: stability of results ----------------------
+# ------- 3.1 full sample 
 full_sample <-
   check_stability(data_missings_removed %>% .[, 1:6]) # 0.7500344
 
-# ------ 3.2 first split: sex differences ------
+# ------- 3.2 first split: sex differences 
 
 first_split_grp1 <-
   check_stability(data_missings_removed %>% filter(sex == "female") %>% .[, 1:6]) # 0.7500606
@@ -185,7 +187,7 @@ first_split_grp1 <-
 first_split_grp2 <-
   check_stability(data_missings_removed %>% filter(sex == "male") %>% .[, 1:6]) # 0.75
 
-# ------ 3.3 second split: childhood sexual abuse in women ------
+# ------- 3.3 second split: childhood sexual abuse in women 
 
 second_split_grp1 <-
   check_stability(data_missings_removed %>% filter(sex == "female" &
@@ -195,7 +197,7 @@ second_split_grp2 <-
   check_stability(data_missings_removed %>% filter(sex == "female" &
                                                      sexual_abuse == "no") %>% .[, 1:6]) # 0.7499269
 
-# ------ 3.4 third split: in men: domestic violence ------
+# ------ 3.4 third split: in men: domestic violence 
 
 third_split_grp1 <-
   check_stability(data_missings_removed %>% filter(sex == "male" &
@@ -205,7 +207,7 @@ third_split_grp2 <-
   check_stability(data_missings_removed %>% filter(sex == "male" &
                                                      violence == "no") %>% .[, 1:6])  # 0.75
 
-# ------ 3.5 fourth split: in men & domestic violence==no: cannabis use ------
+# ------ 3.5 fourth split: in men & domestic violence==no: cannabis use 
 
 fourth_split_grp1 <-
   check_stability(
@@ -218,7 +220,7 @@ fourth_split_grp2 <-
                                                      violence == "no" &
                                                      cannabis == "no") %>% .[, 1:6]) # 0.7501805
 
-# ------ 3.6 fifth split: in men & domestic violence==no & cannabis==no: ethnicity ------
+# ------ 3.6 fifth split: in men & domestic violence==no & cannabis==no: ethnicity 
 fifth_split_grp1 <-
   check_stability(
     data_missings_removed %>% filter(
@@ -238,7 +240,7 @@ fifth_split_grp2 <-
     
   ) # 0.5153374
 
-# ------ 3.7 sixth split: in men & domestic violence==no & cannabis==no & ethnicity == 1,4: lifetime bullying  ------
+# ------ 3.7 sixth split: in men & domestic violence==no & cannabis==no & ethnicity == 1,4: lifetime bullying  
 sixth_split_grp1 <-
   check_stability(
     data_missings_removed %>% filter(
@@ -259,8 +261,8 @@ sixth_split_grp2 <-
 
 
 
-### -- Supplementary figure 1
-
+# ---------------------- 4: Supplementary Figures ----------------------
+# ------ Supplementary Figure 1
 data_missings_removed %>%
   mutate(
     group = case_when(
@@ -327,3 +329,63 @@ ggsave(
   height = 6,
   dpi = 400
 )
+# ------ Supplementary Figure 2
+# NetworkTree for women and men separately
+# --- women
+set.seed(234)
+apms_networktree_women <- networktree(
+  nodevars = data_missings_removed %>% filter(sex == "female") %>% .[, 1:6],
+  # symptoms
+  splitvars = data_missings_removed %>% filter(sex == "female") %>% .[, 7:ncol(data_missings_removed)],
+  # risk factors
+  method = "mob",
+  # default method
+  model = c("correlation"),
+  transform = "pcor",
+  minsize = ceiling(nrow(data_missings_removed) * 0.01) # minimal size terminal node
+)
+
+plot(apms_networktree_women, vsize = 10,
+     edge.width = 2.5,
+     label.cex = 2.5,
+     cut = 0,
+     borders = T,
+     height = 1,
+     width = 1,
+     minimum = 0.01,
+     maximum = 0.4,
+     theme = "colorblind",
+     layout = "circle",
+     labels = c("1", "2", "3", "4", "5", "6"),
+     color =  c(rep("#f7f5f2", 4),
+                rep("#c5ceed", 2)))
+
+# --- men
+set.seed(234)
+apms_networktree_men <- networktree(
+  nodevars = data_missings_removed %>% filter(sex == "male") %>% .[, 1:6],
+  # symptoms
+  splitvars = data_missings_removed %>% filter(sex == "male") %>% .[, 7:ncol(data_missings_removed)],
+  # risk factors
+  method = "mob",
+  # default method
+  model = c("correlation"),
+  transform = "pcor",
+  minsize = ceiling(nrow(data_missings_removed) * 0.01) # minimal size terminal node
+)
+
+plot(apms_networktree_men,
+     vsize = 10,
+     edge.width = 2.5,
+     label.cex = 2.5,
+     cut = 0,
+     borders = T,
+     height = 1,
+     width = 1,
+     minimum = 0.01,
+     maximum = 0.4,
+     theme = "colorblind",
+     layout = "circle",
+     labels = c("1", "2", "3", "4", "5", "6"),
+     color =  c(rep("#f7f5f2", 4),
+                rep("#c5ceed", 2)))
