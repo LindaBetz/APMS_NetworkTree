@@ -33,7 +33,7 @@ library(qgraph)
 library(BGGM)
 library(tidyverse)
 
-# ------ 1.2: define custom functions 
+# ------ 1.2: define custom functions
 global_strength <- function(data1, data2) {
   # global strength as defined in:
   # https://github.com/cvborkulo/NetworkComparisonTest/blob/master/R/NCT.R
@@ -109,7 +109,7 @@ compare_networks <- function(data1,
 }
 
 
-# ------ 1.3: load 2007 AMPS data 
+# ------ 1.3: load 2007 AMPS data
 apms07arch <-
   read_sav("UKDA-6379-spss/spss/spss19/apms07arch.sav")
 
@@ -149,18 +149,15 @@ data_apms <- apms07arch %>%
       case_when(
         VBa == 1 | VBb == 1 | VBc == 1 ~ "yes",
         is.na(VBa) &
-          is.na(VBb) & is.na(VBc) & is.na(VBd) ~ NA_character_,
+          is.na(VBb) & is.na(VBc) ~ NA_character_,
         TRUE ~ "no"
       )
     ),
-    physical_abuse = as.factor(
-      case_when(
-        VBd == 1 ~ "yes",
-        is.na(VBa) &
-          is.na(VBb) & is.na(VBc) & is.na(VBd) ~ NA_character_,
-        TRUE ~ "no"
-      )
-    ),
+    physical_abuse = as.factor(case_when(
+      VBd == 1 ~ "yes",
+      is.na(VBd) ~ NA_character_,
+      TRUE ~ "no"
+    )),
     cannabis = as.factor(ifelse(Cannyear == 1, "yes", "no")),
     alcohol = as.numeric(DVAudit1),
     ethnicity = as.factor(ETHNIC4),
@@ -171,14 +168,13 @@ data_apms <- apms07arch %>%
 # n participants with missing data =
 data_apms %>%
   mutate(any_NA = rowSums(is.na(.))) %>%
-  filter(any_NA > 0) %>% nrow(.) # 146 participants have any variable missing
+  filter(any_NA > 0) %>% nrow(.) # 161 participants have any variable missing
 
 # % participants with missing data
-146 / nrow(data_apms)  # 0.01972173
-
+161 / nrow(data_apms)  # 0.02174794
 
 data_missings_removed <- data_apms  %>% na.omit()
-nrow(data_missings_removed) # 7257 (= total sample size)
+nrow(data_missings_removed) # 7242 (= total sample size)
 
 # Table 1: whole sample
 # frequency data
@@ -198,7 +194,6 @@ data_missings_removed %>%
 # ethnicity
 round(table(data_missings_removed$ethnicity) / nrow(data_missings_removed),
       3)
-
 
 # interval data
 data_missings_removed %>%
@@ -249,9 +244,9 @@ node_names <-
     "hallucinatory experiences"
   )
 
-png(filename = "whole_sample.png",
-    width = 600,
-    height = 600)
+tiff(filename = "whole_sample.tiff",
+    width = 800,
+    height = 800)
 qgraph(
   cor(data_missings_removed %>% .[, 1:6],
       method = "pearson"),
@@ -289,7 +284,7 @@ apms_networktree <- networktree(
 
 
 # ---------------------- 5: Subgroup Differences ----------------------
-# ------ 5.1: first split: women vs. men 
+# ------ 5.1: first split: women vs. men
 # statistical comparison
 set.seed(123)
 first_split <-
@@ -298,7 +293,10 @@ first_split <-
     data_missings_removed %>% filter(sex == "male") %>% .[, 1:6]
   )
 
-# ------ 5.2: second split: sexual abuse in women 
+nrow(data_missings_removed %>% filter(sex == "female")) # 4115
+nrow(data_missings_removed %>% filter(sex == "male")) # 3127
+
+# ------ 5.2: second split: sexual abuse in women
 # statistical comparison
 set.seed(123)
 second_split <-
@@ -309,9 +307,14 @@ second_split <-
                                        sexual_abuse == "no") %>% .[, 1:6]
   )
 
-png(filename = "women_sexual_abuse_yes.png",
-    width = 600,
-    height = 600)
+nrow(data_missings_removed %>% filter(sex == "female" &
+                                        sexual_abuse == "yes")) # 705
+nrow(data_missings_removed %>% filter(sex == "female" &
+                                        sexual_abuse == "no")) # 3410
+
+tiff(filename = "women_sexual_abuse_yes.tiff",
+    width = 800,
+    height = 800)
 qgraph(
   cor(
     data_missings_removed %>% filter(sex == "female" &
@@ -336,13 +339,129 @@ qgraph(
 )
 dev.off()
 
-png(filename = "women_sexual_abuse_no.png",
-    width = 600,
-    height = 600)
+# ------ 5.3: third split: physical abuse in women
+# statistical comparison
+set.seed(123)
+third_split <-
+  compare_networks(
+    data_missings_removed %>% filter(sex == "female" &
+                                       sexual_abuse == "no" &
+                                       physical_abuse == "yes") %>% .[, 1:6],
+    data_missings_removed %>% filter(sex == "female" &
+                                       sexual_abuse == "no" &
+                                       physical_abuse == "no") %>% .[, 1:6]
+  )
+
+nrow(
+  data_missings_removed %>% filter(sex == "female" &
+                                     sexual_abuse == "no" &
+                                     physical_abuse == "yes")
+) # 86
+nrow(data_missings_removed %>% filter(sex == "female" &
+                                        sexual_abuse == "no" &
+                                        physical_abuse == "no")) #  3324
+
+tiff(filename = "women_physical_abuse_yes.png",
+    width = 800,
+    height = 800)
 qgraph(
   cor(
     data_missings_removed %>% filter(sex == "female" &
-                                       sexual_abuse == "no") %>% .[, 1:6],
+                                       sexual_abuse == "no" &
+                                       physical_abuse == "yes") %>% .[, 1:6],
+    method = "pearson"
+  ),
+  graph = "pcor",
+  vsize = 13.5,
+  edge.width = 1.75,
+  label.cex = 2.25,
+  cut = 0,
+  borders = T,
+  border.width  = 4,
+  width = 1,
+  minimum = 0.01,
+  maximum = 0.4,
+  theme = "colorblind",
+  layout = "circle",
+  labels = c("1", "2", "3", "4", "5", "6"),
+  color =  c(rep("#f7f5f2", 4),
+             rep("#c5ceed", 2))
+)
+dev.off()
+
+# ------ 5.4: fourth split: domestic violence in women
+# statistical comparison
+set.seed(123)
+fourth_split <-
+  compare_networks(
+    data_missings_removed %>% filter(
+      sex == "female" &
+        sexual_abuse == "no" &
+        physical_abuse == "no" & violence == "yes"
+    ) %>% .[, 1:6],
+    data_missings_removed %>% filter(
+      sex == "female" &
+        sexual_abuse == "no" &
+        physical_abuse == "no" & violence == "no"
+    ) %>% .[, 1:6]
+  )
+
+nrow(
+  data_missings_removed %>% filter(
+    sex == "female" &
+      sexual_abuse == "no" &
+      physical_abuse == "no" & violence == "yes"
+  )
+) # 303
+nrow(
+  data_missings_removed %>% filter(
+    sex == "female" &
+      sexual_abuse == "no" &
+      physical_abuse == "no" & violence == "no"
+  )
+) # 3021
+
+
+tiff(filename = "women_domestic_violence_yes.png",
+     width = 800,
+     height = 800)
+qgraph(
+  cor(
+    data_missings_removed %>% filter(
+      sex == "female" &
+        sexual_abuse == "no" &
+        physical_abuse == "no" & violence == "yes"
+    ) %>% .[, 1:6],
+    method = "pearson"
+  ),
+  graph = "pcor",
+  vsize = 13.5,
+  edge.width = 1.75,
+  label.cex = 2.25,
+  cut = 0,
+  borders = T,
+  border.width  = 4,
+  width = 1,
+  minimum = 0.01,
+  maximum = 0.4,
+  theme = "colorblind",
+  layout = "circle",
+  labels = c("1", "2", "3", "4", "5", "6"),
+  color =  c(rep("#f7f5f2", 4),
+             rep("#c5ceed", 2))
+)
+dev.off()
+
+tiff(filename = "women_domestic_violence_no.png",
+    width = 800,
+    height = 800)
+qgraph(
+  cor(
+    data_missings_removed %>% filter(
+      sex == "female" &
+        sexual_abuse == "no" &
+        physical_abuse == "no" & violence == "no"
+    ) %>% .[, 1:6],
     method = "pearson"
   ),
   graph = "pcor",
@@ -364,10 +483,11 @@ qgraph(
 dev.off()
 
 
-# ------ 5.3: third split: domestic violence in men
+
+# ------ 5.5: fifth split: domestic violence in men
 # statistical comparison
 set.seed(123)
-third_split <-
+fifth_split <-
   compare_networks(
     data_missings_removed %>% filter(sex == "male" &
                                        violence == "yes") %>% .[, 1:6],
@@ -375,9 +495,16 @@ third_split <-
                                        violence == "no") %>% .[, 1:6]
   )
 
-png(filename = "men_domestic_violence_yes.png",
-    width = 600,
-    height = 600)
+
+nrow(data_missings_removed %>% filter(sex == "male" &
+                                        violence == "yes"))
+
+nrow(data_missings_removed %>% filter(sex == "male" &
+                                        violence == "no"))
+
+tiff(filename = "men_domestic_violence_yes.tiff",
+    width = 800,
+    height = 800)
 qgraph(
   cor(
     data_missings_removed %>% filter(sex == "male" &
@@ -402,10 +529,10 @@ qgraph(
 )
 dev.off()
 
-# ------ 5.4: fourth split: cannabis in men 
+# ------ 5.6: sixth split: cannabis in men
 # statistical comparison
 set.seed(123)
-fourth_split <-
+sixth_split <-
   compare_networks(
     data_missings_removed %>% filter(sex == "male" &
                                        violence == "no" &
@@ -415,10 +542,19 @@ fourth_split <-
                                        cannabis == "no") %>% .[, 1:6]
   )
 
+nrow(data_missings_removed %>% filter(sex == "male" &
+                                            violence == "no" &
+                                            cannabis == "yes")) # 206
+
+nrow(data_missings_removed %>% filter(sex == "male" &
+                                        violence == "no" &
+                                        cannabis == "no")) # 2765
+
+
 # plotting the respective subgroup network
-png(filename = "men_cannabis_yes.png",
-    width = 600,
-    height = 600)
+tiff(filename = "men_cannabis_yes.tiff",
+    width = 800,
+    height = 800)
 qgraph(
   cor(
     data_missings_removed %>% filter(sex == "male" &
@@ -445,10 +581,10 @@ qgraph(
 dev.off()
 
 
-# ------5.5: fifth split: ethnic background in men 
+# ------5.7: seventh split: ethnic background in men
 # statistical comparison
 set.seed(123)
-fifth_split <-
+seventh_split <-
   compare_networks(
     data_missings_removed %>% filter(
       sex == "male" &
@@ -464,67 +600,31 @@ fifth_split <-
     ) %>% .[, 1:6]
   )
 
+nrow(data_missings_removed %>% filter(
+  sex == "male" &
+    violence == "no" &
+    cannabis == "no" &
+    ethnicity %in% c(2, 3)
+)) # 161
+
+nrow(data_missings_removed %>% filter(
+  sex == "male" &
+    violence == "no" &
+    cannabis == "no" &
+    ethnicity %in% c(1, 4)
+)) # 2,604
+
 # plotting the respective subgroup network
-png(filename = "men_ethnic_minority.png",
-    width = 600,
-    height = 600)
+tiff(filename = "men_ethnic_minority.tiff",
+    width = 800,
+    height = 800)
 qgraph(
   cor(
     data_missings_removed %>% filter(
       sex == "male" &
         violence == "no" &
         cannabis == "no" &
-        ethnicity %in% c(2, 3)
-    ) %>% .[, 1:6],
-    
-    method = "pearson"
-  ),
-  graph = "pcor",
-  vsize = 13.5,
-  edge.width = 1.75,
-  label.cex = 2.25,
-  cut = 0,
-  borders = T,
-  border.width  = 4,
-  width = 1,
-  minimum = 0.01,
-  maximum = 0.4,
-  theme = "colorblind",
-  layout = "circle",
-  labels = c("1", "2", "3", "4", "5", "6"),
-  color =  c(rep("#f7f5f2", 4),
-             rep("#c5ceed", 2))
-)
-dev.off()
-
-# ------ 5.6: sixth split: bullying in men
-# statistical comparison
-set.seed(123)
-sixth_split <-
-  compare_networks(
-    data_missings_removed %>% filter(
-      sex == "male" &
-        violence == "no" &
-        cannabis == "no" &
-        ethnicity %in% c(1, 4) & bullying == "yes"
-    ) %>% .[, 1:6],
-    data_missings_removed %>% filter(
-      sex == "male" &
-        violence == "no" &
-        cannabis == "no" & ethnicity %in% c(1, 4) & bullying == "no"
-    ) %>% .[, 1:6]
-  )
-
-png(filename = "men_ethnic_majority_bullying_yes.png",
-    width = 600,
-    height = 600)
-qgraph(
-  cor(
-    data_missings_removed %>% filter(
-      sex == "male" &
-        violence == "no" &
-        cannabis == "no" &
-        ethnicity %in% c(1, 4) & bullying == "yes"
+        ethnicity %in% c(2, 3) # Black, South Asian
     ) %>% .[, 1:6],
     
     method = "pearson"
@@ -548,16 +648,16 @@ qgraph(
 dev.off()
 
 
-png(filename = "men_ethnic_majority_bullying_no.png",
-    width = 600,
-    height = 600)
+tiff(filename = "men_ethnic_majority.tiff",
+    width = 800,
+    height = 800)
 qgraph(
   cor(
     data_missings_removed %>% filter(
       sex == "male" &
         violence == "no" &
         cannabis == "no" &
-        ethnicity %in% c(1, 4) & bullying == "no"
+        ethnicity %in% c(1,4)
     ) %>% .[, 1:6],
     
     method = "pearson"
@@ -579,6 +679,7 @@ qgraph(
              rep("#c5ceed", 2))
 )
 dev.off()
+
 
 # ---------------------- 6: Figures ----------------------
 # ------ Figure 2
@@ -600,7 +701,7 @@ plot(
   color =  c(rep("#f7f5f2", 4),
              rep("#c5ceed", 2))
 )
-# ------ Figure 3: networks of women vs. men 
+# ------ Figure 3: networks of women vs. men
 # plotting for overview only; Figure 3 was edited in PowerPoint
 
 png(filename = "women.png",
