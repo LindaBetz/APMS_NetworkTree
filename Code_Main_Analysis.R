@@ -201,6 +201,12 @@ data_missings_removed %>%
   summarise(across(everything(), c(median = median, IQR = IQR)))
 
 # Table 1: men vs. women
+
+# n per group
+data_missings_removed %>%
+  group_by(sex) %>%
+  summarise(n = n())
+
 # frequency data
 data_missings_removed %>%
   group_by(sex) %>%
@@ -704,7 +710,7 @@ plot(
 # ------ Figure 3: networks of women vs. men
 # plotting for overview only; Figure 3 was edited in PowerPoint
 
-png(filename = "women.png",
+tiff(filename = "women.tiff",
     width = 900,
     height = 900)
 qgraph(
@@ -731,7 +737,7 @@ qgraph(
 )
 dev.off()
 
-png(filename = "men.png",
+tiff(filename = "men.tiff",
     width = 900,
     height = 900)
 qgraph(
