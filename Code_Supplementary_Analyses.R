@@ -52,6 +52,22 @@ check_stability <- function(data, iters = 5000) {
   return(cor_stability)
 }
 
+
+# for checking accuracy of edges in estimated networks
+check_accuracy <- function(data, iters = 5000) {
+  sub_network <- estimateNetwork(data, default = "pcor", alpha = 1)
+  set.seed(1)
+  boot_sub_network <-
+    bootnet(
+      sub_network,
+      iters = iters,
+      statistics = "edge",
+      verbose = FALSE,
+      replacement = TRUE
+    )
+  return(boot_sub_network)
+}
+
 # ------ 1.3 load 2007 AMPS data
 apms07arch <-
   read_sav("UKDA-6379-spss/spss/spss19/apms07arch.sav")
@@ -242,7 +258,7 @@ fourth_split_grp2 <-
 
 fifth_split_grp1 <-
   check_stability(data_missings_removed %>% filter(sex == "male" &
-                                                     violence == "yes") %>% .[, 1:6]) # 0.4358974 
+                                                     violence == "yes") %>% .[, 1:6]) # 0.4358974
 
 fifth_split_grp2 <-
   check_stability(data_missings_removed %>% filter(sex == "male" &
@@ -254,15 +270,13 @@ sixth_split_grp1 <-
     data_missings_removed %>% filter(sex == "male" &
                                        violence == "no" &
                                        cannabis == "yes") %>% .[, 1:6]
-  ) # 0.4368932 
+  ) # 0.4368932
 
 
 sixth_split_grp2 <-
-  check_stability(
-    data_missings_removed %>% filter(sex == "male" &
-                                       violence == "no" &
-                                       cannabis == "no") %>% .[, 1:6]
-  ) # 0.7500904 
+  check_stability(data_missings_removed %>% filter(sex == "male" &
+                                                     violence == "no" &
+                                                     cannabis == "no") %>% .[, 1:6]) # 0.7500904
 
 # ------ 3.7 seventh split: in men: ethnicity
 seventh_split_grp1 <-
@@ -273,7 +287,7 @@ seventh_split_grp1 <-
         cannabis == "no" &
         ethnicity %in% c(1, 4) # White, Other
     ) %>% .[, 1:6]
-  ) # 0.75 
+  ) # 0.75
 
 seventh_split_grp2 <-
   check_stability(
@@ -283,11 +297,11 @@ seventh_split_grp2 <-
         cannabis == "no" &
         ethnicity %in% c(2, 3)  # Black, South Asian
     ) %>% .[, 1:6]
-  ) # 0.515528 
+  ) # 0.515528
 
 # ---------------------- 4: Supplementary Figures ----------------------
 # ------ Supplementary Figure 1
-# NetworkTree for women and men separately 
+# NetworkTree for women and men separately
 # --- women
 set.seed(234)
 apms_networktree_women <- networktree(
@@ -351,3 +365,164 @@ plot(
   color =  c(rep("#f7f5f2", 4),
              rep("#c5ceed", 2))
 )
+
+
+# ------ Supplementary Figure 2
+
+# ------- 3.0 full sample
+full_sample_edge_accuracy <-
+  check_accuracy(data_missings_removed %>% .[, 1:6])
+
+plot(full_sample_edge_accuracy, order = "sample")
+ggsave("full_sample_edge_accuracy.tiff")
+
+# ------- 3.1 first split: sex differences
+
+first_split_grp1_edge_accuracy <-
+  check_accuracy(data_missings_removed %>% filter(sex == "female") %>% .[, 1:6])
+
+plot(first_split_grp1_edge_accuracy, order = "sample")
+ggsave("first_split_grp1_edge_accuracy.tiff")
+
+first_split_grp2_edge_accuracy <-
+  check_accuracy(data_missings_removed %>% filter(sex == "male") %>% .[, 1:6])
+
+plot(first_split_grp2_edge_accuracy, order = "sample")
+ggsave("first_split_grp2_edge_accuracy.tiff")
+
+# ------- 3.2 second split: childhood sexual abuse in women
+
+second_split_grp1_edge_accuracy <-
+  check_accuracy(data_missings_removed %>% filter(sex == "female" &
+                                                    sexual_abuse == "yes") %>% .[, 1:6])
+
+plot(second_split_grp1_edge_accuracy, order = "sample")
+ggsave("second_split_grp1_edge_accuracy.tiff")
+
+
+second_split_grp2_edge_accuracy <-
+  check_accuracy(data_missings_removed %>% filter(sex == "female" &
+                                                    sexual_abuse == "no") %>% .[, 1:6])
+
+plot(second_split_grp2_edge_accuracy, order = "sample")
+ggsave("second_split_grp2_edge_accuracy.tiff")
+
+
+
+# ------- 3.3 third split: childhood physical abuse in women
+
+third_split_grp1_edge_accuracy <-
+  check_accuracy(
+    data_missings_removed %>% filter(sex == "female" &
+                                       sexual_abuse == "no" &
+                                       physical_abuse == "yes") %>% .[, 1:6]
+  ) 
+
+
+plot(third_split_grp1_edge_accuracy, order = "sample")
+ggsave("third_split_grp1_edge_accuracy.tiff")
+
+
+third_split_grp2_edge_accuracy <-
+  check_accuracy(
+    data_missings_removed %>% filter(sex == "female" &
+                                       sexual_abuse == "no" &
+                                       physical_abuse == "no") %>% .[, 1:6]
+  )
+
+plot(third_split_grp2_edge_accuracy, order = "sample")
+ggsave("third_split_grp2_edge_accuracy.tiff")
+
+# ------ 3.4 fourth split: in women: domestic violence
+
+fourth_split_grp1_edge_accuracy <-
+  check_accuracy(
+    data_missings_removed %>% filter(
+      sex == "female" &
+        sexual_abuse == "no" &
+        physical_abuse == "no" &
+        violence == "yes"
+    ) %>% .[, 1:6]
+  )
+
+plot(fourth_split_grp1_edge_accuracy, order = "sample")
+ggsave("fourth_split_grp1_edge_accuracy.tiff")
+
+fourth_split_grp2_edge_accuracy <-
+  check_accuracy(
+    data_missings_removed %>% filter(
+      sex == "female" &
+        sexual_abuse == "no" &
+        physical_abuse == "no" &
+        violence == "no"
+    ) %>% .[, 1:6]
+  )
+
+plot(fourth_split_grp2_edge_accuracy, order = "sample")
+ggsave("fourth_split_grp2_edge_accuracy.tiff")
+
+# ------ 3.5 fifth split: in men: domestic violence
+
+fifth_split_grp1_edge_accuracy <-
+  check_accuracy(data_missings_removed %>% filter(sex == "male" &
+                                                    violence == "yes") %>% .[, 1:6])
+
+plot(fifth_split_grp1_edge_accuracy, order = "sample")
+ggsave("fifth_split_grp1_edge_accuracy.tiff")
+
+fifth_split_grp2_edge_accuracy <-
+  check_accuracy(data_missings_removed %>% filter(sex == "male" &
+                                                    violence == "no") %>% .[, 1:6])
+
+plot(fifth_split_grp2_edge_accuracy, order = "sample")
+ggsave("fifth_split_grp2_edge_accuracy.tiff")
+
+# ------ 3.6 sixth split: in men: cannabis
+sixth_split_grp1_edge_accuracy <-
+  check_accuracy(
+    data_missings_removed %>% filter(sex == "male" &
+                                       violence == "no" &
+                                       cannabis == "yes") %>% .[, 1:6]
+  )
+
+plot(sixth_split_grp1_edge_accuracy, order = "sample")
+ggsave("sixth_split_grp1_edge_accuracy.tiff")
+
+
+sixth_split_grp2_edge_accuracy <-
+  check_accuracy(data_missings_removed %>% filter(sex == "male" &
+                                                    violence == "no" &
+                                                    cannabis == "no") %>% .[, 1:6])
+
+
+plot(sixth_split_grp2_edge_accuracy, order = "sample")
+ggsave("sixth_split_grp2_edge_accuracy.tiff")
+
+# ------ 3.7 seventh split: in men: ethnicity
+seventh_split_grp1_edge_accuracy <-
+  check_accuracy(
+    data_missings_removed %>% filter(
+      sex == "male" &
+        violence == "no" &
+        cannabis == "no" &
+        ethnicity %in% c(1, 4) # White, Other
+    ) %>% .[, 1:6]
+  )
+
+plot(seventh_split_grp1_edge_accuracy, order = "sample")
+ggsave("seventh_split_grp1_edge_accuracy.tiff")
+
+
+seventh_split_grp2_edge_accuracy <-
+  check_accuracy(
+    data_missings_removed %>% filter(
+      sex == "male" &
+        violence == "no" &
+        cannabis == "no" &
+        ethnicity %in% c(2, 3)  # Black, South Asian
+    ) %>% .[, 1:6]
+  )
+
+plot(seventh_split_grp2_edge_accuracy, order = "sample")
+ggsave("seventh_split_grp2_edge_accuracy.tiff")
+
