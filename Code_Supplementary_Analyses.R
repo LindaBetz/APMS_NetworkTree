@@ -148,7 +148,7 @@ data_included_excluded %>%
 
 # frequency data
 data_included_excluded %>%
-  select(.,-c(age, alcohol, deprivation, ethnicity)) %>%
+  select(., -c(age, alcohol, deprivation, ethnicity)) %>%
   mutate(across(
     where(is.factor),
     ~ case_when(
@@ -182,7 +182,7 @@ data_included_excluded %>%
 # frequency data
 set.seed(1)
 data_included_excluded %>%
-  select(., -c(age, alcohol, deprivation, included_excluded)) %>%
+  select(.,-c(age, alcohol, deprivation, included_excluded)) %>%
   map(
     ~ chisq_test(
       as.factor(.) ~ as.factor(data_included_excluded$included_excluded),
@@ -374,7 +374,7 @@ full_sample_edge_accuracy <-
   check_accuracy(data_missings_removed %>% .[, 1:6])
 
 plot(full_sample_edge_accuracy, order = "sample")
-ggsave("full_sample_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/full_sample_edge_accuracy.tiff")
 
 # ------- 3.1 first split: sex differences
 
@@ -382,13 +382,13 @@ first_split_grp1_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "female") %>% .[, 1:6])
 
 plot(first_split_grp1_edge_accuracy, order = "sample")
-ggsave("first_split_grp1_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/first_split_grp1_edge_accuracy.tiff")
 
 first_split_grp2_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "male") %>% .[, 1:6])
 
 plot(first_split_grp2_edge_accuracy, order = "sample")
-ggsave("first_split_grp2_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/first_split_grp2_edge_accuracy.tiff")
 
 # ------- 3.2 second split: childhood sexual abuse in women
 
@@ -397,7 +397,7 @@ second_split_grp1_edge_accuracy <-
                                                     sexual_abuse == "yes") %>% .[, 1:6])
 
 plot(second_split_grp1_edge_accuracy, order = "sample")
-ggsave("second_split_grp1_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/second_split_grp1_edge_accuracy.tiff")
 
 
 second_split_grp2_edge_accuracy <-
@@ -405,7 +405,7 @@ second_split_grp2_edge_accuracy <-
                                                     sexual_abuse == "no") %>% .[, 1:6])
 
 plot(second_split_grp2_edge_accuracy, order = "sample")
-ggsave("second_split_grp2_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/second_split_grp2_edge_accuracy.tiff")
 
 
 
@@ -416,11 +416,11 @@ third_split_grp1_edge_accuracy <-
     data_missings_removed %>% filter(sex == "female" &
                                        sexual_abuse == "no" &
                                        physical_abuse == "yes") %>% .[, 1:6]
-  ) 
+  )
 
 
 plot(third_split_grp1_edge_accuracy, order = "sample")
-ggsave("third_split_grp1_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/third_split_grp1_edge_accuracy.tiff")
 
 
 third_split_grp2_edge_accuracy <-
@@ -431,7 +431,7 @@ third_split_grp2_edge_accuracy <-
   )
 
 plot(third_split_grp2_edge_accuracy, order = "sample")
-ggsave("third_split_grp2_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/third_split_grp2_edge_accuracy.tiff")
 
 # ------ 3.4 fourth split: in women: domestic violence
 
@@ -446,7 +446,7 @@ fourth_split_grp1_edge_accuracy <-
   )
 
 plot(fourth_split_grp1_edge_accuracy, order = "sample")
-ggsave("fourth_split_grp1_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/fourth_split_grp1_edge_accuracy.tiff")
 
 fourth_split_grp2_edge_accuracy <-
   check_accuracy(
@@ -459,7 +459,7 @@ fourth_split_grp2_edge_accuracy <-
   )
 
 plot(fourth_split_grp2_edge_accuracy, order = "sample")
-ggsave("fourth_split_grp2_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/fourth_split_grp2_edge_accuracy.tiff")
 
 # ------ 3.5 fifth split: in men: domestic violence
 
@@ -468,14 +468,14 @@ fifth_split_grp1_edge_accuracy <-
                                                     violence == "yes") %>% .[, 1:6])
 
 plot(fifth_split_grp1_edge_accuracy, order = "sample")
-ggsave("fifth_split_grp1_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/fifth_split_grp1_edge_accuracy.tiff")
 
 fifth_split_grp2_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "male" &
                                                     violence == "no") %>% .[, 1:6])
 
 plot(fifth_split_grp2_edge_accuracy, order = "sample")
-ggsave("fifth_split_grp2_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/fifth_split_grp2_edge_accuracy.tiff")
 
 # ------ 3.6 sixth split: in men: cannabis
 sixth_split_grp1_edge_accuracy <-
@@ -486,7 +486,7 @@ sixth_split_grp1_edge_accuracy <-
   )
 
 plot(sixth_split_grp1_edge_accuracy, order = "sample")
-ggsave("sixth_split_grp1_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/sixth_split_grp1_edge_accuracy.tiff")
 
 
 sixth_split_grp2_edge_accuracy <-
@@ -496,7 +496,7 @@ sixth_split_grp2_edge_accuracy <-
 
 
 plot(sixth_split_grp2_edge_accuracy, order = "sample")
-ggsave("sixth_split_grp2_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/sixth_split_grp2_edge_accuracy.tiff")
 
 # ------ 3.7 seventh split: in men: ethnicity
 seventh_split_grp1_edge_accuracy <-
@@ -510,7 +510,7 @@ seventh_split_grp1_edge_accuracy <-
   )
 
 plot(seventh_split_grp1_edge_accuracy, order = "sample")
-ggsave("seventh_split_grp1_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/seventh_split_grp1_edge_accuracy.tiff")
 
 
 seventh_split_grp2_edge_accuracy <-
@@ -524,5 +524,210 @@ seventh_split_grp2_edge_accuracy <-
   )
 
 plot(seventh_split_grp2_edge_accuracy, order = "sample")
-ggsave("seventh_split_grp2_edge_accuracy.tiff")
+ggsave("Supplement_Accuracy_Plots/seventh_split_grp2_edge_accuracy.tiff")
 
+# ---------------------- 5: Partial Correlation Matrices ----------------------
+# extract & export the partial correlation matrices of the estimated networks as .csv-files
+# NOTE: we zipped the folder "Supplement_Partial_Correlation_Matrices" for upload to Online Supplementary Materials
+
+full_sample <- getWmat(qgraph(
+  cor(data_missings_removed %>% .[, 1:6],
+      method = "pearson"),
+  graph = "pcor",
+  DoNotPlot = TRUE
+))
+
+write.table(
+  full_sample,
+  "Supplement_Partial_Correlation_Matrices/full_sample.csv",
+  row.names = TRUE,
+  col.names = TRUE
+)
+
+
+women <- getWmat(qgraph(
+  cor(data_missings_removed %>% filter(sex == "female") %>% .[, 1:6],
+      method = "pearson"),
+  graph = "pcor",
+  DoNotPlot = TRUE
+))
+
+write.table(
+  women,
+  "Supplement_Partial_Correlation_Matrices/women.csv",
+  row.names = TRUE,
+  col.names = TRUE
+)
+
+
+men <- getWmat(qgraph(
+  cor(data_missings_removed %>% filter(sex == "male") %>% .[, 1:6],
+      method = "pearson"),
+  graph = "pcor",
+  DoNotPlot = TRUE
+))
+
+write.table(
+  men,
+  "Supplement_Partial_Correlation_Matrices/men.csv",
+  row.names = TRUE,
+  col.names = TRUE
+)
+
+
+women_sexual_abuse_yes <- getWmat(qgraph(
+  cor(
+    data_missings_removed %>% filter(sex == "female" &
+                                       sexual_abuse == "yes") %>% .[, 1:6],
+    method = "pearson"
+  ),
+  graph = "pcor",
+  DoNotPlot = TRUE
+))
+
+write.table(
+  women_sexual_abuse_yes,
+  "Supplement_Partial_Correlation_Matrices/women_sexual_abuse_yes.csv",
+  row.names = TRUE,
+  col.names = TRUE
+)
+
+women_physical_abuse_yes <- getWmat(qgraph(
+  cor(
+    data_missings_removed %>% filter(sex == "female" &
+                                       sexual_abuse == "no" &
+                                       physical_abuse == "yes") %>% .[, 1:6],
+    method = "pearson"
+  ),
+  graph = "pcor",
+  DoNotPlot = TRUE
+))
+
+write.table(
+  women_sexual_abuse_yes,
+  "Supplement_Partial_Correlation_Matrices/women_physical_abuse_yes.csv",
+  row.names = TRUE,
+  col.names = TRUE
+)
+
+women_domestic_violence_yes <- getWmat(qgraph(
+  cor(
+    data_missings_removed %>% filter(
+      sex == "female" &
+        sexual_abuse == "no" &
+        physical_abuse == "no" & violence == "yes"
+    ) %>% .[, 1:6],
+    method = "pearson"
+  ),
+  graph = "pcor",
+  DoNotPlot = TRUE
+))
+
+write.table(
+  women_domestic_violence_yes,
+  "Supplement_Partial_Correlation_Matrices/women_domestic_violence_yes.csv",
+  row.names = TRUE,
+  col.names = TRUE
+)
+
+women_domestic_violence_no <- getWmat(qgraph(
+  cor(
+    data_missings_removed %>% filter(
+      sex == "female" &
+        sexual_abuse == "no" &
+        physical_abuse == "no" & violence == "no"
+    ) %>% .[, 1:6],
+    method = "pearson"
+  ),
+  graph = "pcor",
+  DoNotPlot = TRUE
+))
+
+write.table(
+  women_domestic_violence_no,
+  "Supplement_Partial_Correlation_Matrices/women_domestic_violence_no.csv",
+  row.names = TRUE,
+  col.names = TRUE
+)
+
+men_domestic_violence_yes <- getWmat(qgraph(
+  cor(
+    data_missings_removed %>% filter(sex == "male" &
+                                       violence == "yes") %>% .[, 1:6],
+    method = "pearson"
+  ),
+  graph = "pcor",
+  DoNotPlot = TRUE
+))
+
+write.table(
+  men_domestic_violence_yes,
+  "Supplement_Partial_Correlation_Matrices/men_domestic_violence_yes.csv",
+  row.names = TRUE,
+  col.names = TRUE
+)
+
+
+men_cannabis_yes <- getWmat(qgraph(
+  cor(
+    data_missings_removed %>% filter(sex == "male" &
+                                       violence == "no" &
+                                       cannabis == "yes") %>% .[, 1:6],
+    method = "pearson"
+  ),
+  graph = "pcor",
+  DoNotPlot = TRUE
+))
+
+write.table(
+  men_cannabis_yes,
+  "Supplement_Partial_Correlation_Matrices/men_cannabis_yes.csv",
+  row.names = TRUE,
+  col.names = TRUE
+)
+
+
+men_ethnic_minority <- getWmat(qgraph(
+  cor(
+    data_missings_removed %>% filter(
+      sex == "male" &
+        violence == "no" &
+        cannabis == "no" &
+        ethnicity %in% c(2, 3) # Black, South Asian
+    ) %>% .[, 1:6],
+    
+    method = "pearson"
+  ),
+  graph = "pcor",
+  DoNotPlot = TRUE
+))
+
+write.table(
+  men_ethnic_minority,
+  "Supplement_Partial_Correlation_Matrices/men_ethnic_minority.csv",
+  row.names = TRUE,
+  col.names = TRUE
+)
+
+
+men_ethnic_majority <- getWmat(qgraph(
+  cor(
+    data_missings_removed %>% filter(
+      sex == "male" &
+        violence == "no" &
+        cannabis == "no" &
+        ethnicity %in% c(1, 4) # White, Other
+    ) %>% .[, 1:6],
+    
+    method = "pearson"
+  ),
+  graph = "pcor",
+  DoNotPlot = TRUE
+))
+
+write.table(
+  men_ethnic_majority,
+  "Supplement_Partial_Correlation_Matrices/men_ethnic_majority.csv",
+  row.names = TRUE,
+  col.names = TRUE
+)
