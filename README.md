@@ -4,7 +4,7 @@ R-code to reproduce analyses described in "Disentangling heterogeneity of psycho
 
 Code by L. Betz (linda.betz@uk-koeln.de)
 
-There are two files:
+There are two analyses files:
 
 - Code_Main_Analysis.R provides code to reproduce findings reported in the main manuscript.
 - Code_Supplementary_Analysis.R provides code to reproduce findings reported in the supplementary materials.
