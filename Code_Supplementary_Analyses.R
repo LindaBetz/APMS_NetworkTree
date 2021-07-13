@@ -380,54 +380,55 @@ full_sample_edge_accuracy <-
 
 plot(full_sample_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/full_sample_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_2.tiff",
   width = 5.13,
   height = 6.77
 )
 
 # ------- 3.1 first split: sex differences
-
+# ------ Supplementary Figure 3
 first_split_grp1_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "female") %>% .[, 1:6])
 
 plot(first_split_grp1_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/first_split_grp1_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_3.tiff",
   width = 5.13,
   height = 6.77
 )
 
+# ------ Supplementary Figure 4
 first_split_grp2_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "male") %>% .[, 1:6])
 
 plot(first_split_grp2_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/first_split_grp2_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_4.tiff",
   width = 5.13,
   height = 6.77
 )
 
 # ------- 3.2 second split: childhood sexual abuse in women
-
+# ------ Supplementary Figure 5
 second_split_grp1_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "female" &
                                                     sexual_abuse == "yes") %>% .[, 1:6])
 
 plot(second_split_grp1_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/second_split_grp1_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_5.tiff",
   width = 5.13,
   height = 6.77
 )
 
-
+# ------ Supplementary Figure 6
 second_split_grp2_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "female" &
                                                     sexual_abuse == "no") %>% .[, 1:6])
 
 plot(second_split_grp2_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/second_split_grp2_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_6.tiff",
   width = 5.13,
   height = 6.77
 )
@@ -435,7 +436,7 @@ ggsave(
 
 
 # ------- 3.3 third split: childhood physical abuse in women
-
+# ------ Supplementary Figure 7
 third_split_grp1_edge_accuracy <-
   check_accuracy(
     data_missings_removed %>% filter(sex == "female" &
@@ -446,12 +447,12 @@ third_split_grp1_edge_accuracy <-
 
 plot(third_split_grp1_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/third_split_grp1_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_7.tiff",
   width = 5.13,
   height = 6.77
 )
 
-
+# ------ Supplementary Figure 8
 third_split_grp2_edge_accuracy <-
   check_accuracy(
     data_missings_removed %>% filter(sex == "female" &
@@ -461,13 +462,13 @@ third_split_grp2_edge_accuracy <-
 
 plot(third_split_grp2_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/third_split_grp2_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_8.tiff",
   width = 5.13,
   height = 6.77
 )
 
 # ------ 3.4 fourth split: in women: domestic violence
-
+# ------ Supplementary Figure 9
 fourth_split_grp1_edge_accuracy <-
   check_accuracy(
     data_missings_removed %>% filter(
@@ -480,11 +481,12 @@ fourth_split_grp1_edge_accuracy <-
 
 plot(fourth_split_grp1_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/fourth_split_grp1_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_9.tiff",
   width = 5.13,
   height = 6.77
 )
 
+# ------ Supplementary Figure 10
 fourth_split_grp2_edge_accuracy <-
   check_accuracy(
     data_missings_removed %>% filter(
@@ -497,36 +499,38 @@ fourth_split_grp2_edge_accuracy <-
 
 plot(fourth_split_grp2_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/fourth_split_grp2_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_10.tiff",
   width = 5.13,
   height = 6.77
 )
 
 # ------ 3.5 fifth split: in men: domestic violence
-
+# ------ Supplementary Figure 11
 fifth_split_grp1_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "male" &
                                                     violence == "yes") %>% .[, 1:6])
 
 plot(fifth_split_grp1_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/fifth_split_grp1_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_11.tiff",
   width = 5.13,
   height = 6.77
 )
 
+# ------ Supplementary Figure 12
 fifth_split_grp2_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "male" &
                                                     violence == "no") %>% .[, 1:6])
 
 plot(fifth_split_grp2_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/fifth_split_grp2_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_12.tiff",
   width = 5.13,
   height = 6.77
 )
 
 # ------ 3.6 sixth split: in men: cannabis
+# ------ Supplementary Figure 13
 sixth_split_grp1_edge_accuracy <-
   check_accuracy(
     data_missings_removed %>% filter(sex == "male" &
@@ -536,12 +540,12 @@ sixth_split_grp1_edge_accuracy <-
 
 plot(sixth_split_grp1_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/sixth_split_grp1_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_13.tiff",
   width = 5.13,
   height = 6.77
 )
 
-
+# ------ Supplementary Figure 14
 sixth_split_grp2_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "male" &
                                                     violence == "no" &
@@ -550,12 +554,13 @@ sixth_split_grp2_edge_accuracy <-
 
 plot(sixth_split_grp2_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/sixth_split_grp2_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_14.tiff",
   width = 5.13,
   height = 6.77
 )
 
 # ------ 3.7 seventh split: in men: ethnicity
+# ------ Supplementary Figure 15
 seventh_split_grp1_edge_accuracy <-
   check_accuracy(
     data_missings_removed %>% filter(
@@ -568,12 +573,12 @@ seventh_split_grp1_edge_accuracy <-
 
 plot(seventh_split_grp1_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/seventh_split_grp1_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_15.tiff",
   width = 5.13,
   height = 6.77
 )
 
-
+# ------ Supplementary Figure 16
 seventh_split_grp2_edge_accuracy <-
   check_accuracy(
     data_missings_removed %>% filter(
@@ -586,7 +591,7 @@ seventh_split_grp2_edge_accuracy <-
 
 plot(seventh_split_grp2_edge_accuracy, order = "sample")
 ggsave(
-  "Supplement_Accuracy_Plots/seventh_split_grp2_edge_accuracy.tiff",
+  "Supplement_Accuracy_Plots/Supplementary_Fig_16.tiff",
   width = 5.13,
   height = 6.77
 )
