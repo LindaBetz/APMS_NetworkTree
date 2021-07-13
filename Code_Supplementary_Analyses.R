@@ -34,7 +34,7 @@ library(BGGM)
 library(coin)
 library(tidyverse)
 
-# ------ 1.2 define custom function
+# ------ 1.2 define custom functions
 # for checking stability of estimated networks
 check_stability <- function(data, iters = 5000) {
   sub_network <- estimateNetwork(data, default = "pcor", alpha = 1)
@@ -148,7 +148,7 @@ data_included_excluded %>%
 
 # frequency data
 data_included_excluded %>%
-  select(., -c(age, alcohol, deprivation, ethnicity)) %>%
+  select(.,-c(age, alcohol, deprivation, ethnicity)) %>%
   mutate(across(
     where(is.factor),
     ~ case_when(
@@ -166,6 +166,11 @@ excluded <- data_included_excluded %>%
 
 round(table(excluded$ethnicity) / sum(!is.na(excluded$ethnicity)), 3)
 
+included <- data_included_excluded %>%
+  filter(included_excluded == "included")
+
+round(table(included$ethnicity) / sum(!is.na(included$ethnicity)), 3)
+
 # ------- 2.3 statistical comparison
 # interval data
 set.seed(1)
@@ -182,7 +187,7 @@ data_included_excluded %>%
 # frequency data
 set.seed(1)
 data_included_excluded %>%
-  select(.,-c(age, alcohol, deprivation, included_excluded)) %>%
+  select(., -c(age, alcohol, deprivation, included_excluded)) %>%
   map(
     ~ chisq_test(
       as.factor(.) ~ as.factor(data_included_excluded$included_excluded),
@@ -205,7 +210,7 @@ first_split_grp1 <-
 first_split_grp2 <-
   check_stability(data_missings_removed %>% filter(sex == "male") %>% .[, 1:6]) # 0.7499201
 
-# ------- 3.2 second split: childhood sexual abuse in women
+# ------- 3.2 second split: in women: childhood sexual abuse
 
 second_split_grp1 <-
   check_stability(data_missings_removed %>% filter(sex == "female" &
@@ -216,7 +221,7 @@ second_split_grp2 <-
                                                      sexual_abuse == "no") %>% .[, 1:6]) # 0.7501466
 
 
-# ------- 3.3 third split: childhood physical abuse in women
+# ------- 3.3 third split: in women: childhood physical abuse
 
 third_split_grp1 <-
   check_stability(
@@ -374,7 +379,11 @@ full_sample_edge_accuracy <-
   check_accuracy(data_missings_removed %>% .[, 1:6])
 
 plot(full_sample_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/full_sample_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/full_sample_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 # ------- 3.1 first split: sex differences
 
@@ -382,13 +391,21 @@ first_split_grp1_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "female") %>% .[, 1:6])
 
 plot(first_split_grp1_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/first_split_grp1_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/first_split_grp1_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 first_split_grp2_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "male") %>% .[, 1:6])
 
 plot(first_split_grp2_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/first_split_grp2_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/first_split_grp2_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 # ------- 3.2 second split: childhood sexual abuse in women
 
@@ -397,7 +414,11 @@ second_split_grp1_edge_accuracy <-
                                                     sexual_abuse == "yes") %>% .[, 1:6])
 
 plot(second_split_grp1_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/second_split_grp1_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/second_split_grp1_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 
 second_split_grp2_edge_accuracy <-
@@ -405,7 +426,11 @@ second_split_grp2_edge_accuracy <-
                                                     sexual_abuse == "no") %>% .[, 1:6])
 
 plot(second_split_grp2_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/second_split_grp2_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/second_split_grp2_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 
 
@@ -420,7 +445,11 @@ third_split_grp1_edge_accuracy <-
 
 
 plot(third_split_grp1_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/third_split_grp1_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/third_split_grp1_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 
 third_split_grp2_edge_accuracy <-
@@ -431,7 +460,11 @@ third_split_grp2_edge_accuracy <-
   )
 
 plot(third_split_grp2_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/third_split_grp2_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/third_split_grp2_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 # ------ 3.4 fourth split: in women: domestic violence
 
@@ -446,7 +479,11 @@ fourth_split_grp1_edge_accuracy <-
   )
 
 plot(fourth_split_grp1_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/fourth_split_grp1_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/fourth_split_grp1_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 fourth_split_grp2_edge_accuracy <-
   check_accuracy(
@@ -459,7 +496,11 @@ fourth_split_grp2_edge_accuracy <-
   )
 
 plot(fourth_split_grp2_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/fourth_split_grp2_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/fourth_split_grp2_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 # ------ 3.5 fifth split: in men: domestic violence
 
@@ -468,14 +509,22 @@ fifth_split_grp1_edge_accuracy <-
                                                     violence == "yes") %>% .[, 1:6])
 
 plot(fifth_split_grp1_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/fifth_split_grp1_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/fifth_split_grp1_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 fifth_split_grp2_edge_accuracy <-
   check_accuracy(data_missings_removed %>% filter(sex == "male" &
                                                     violence == "no") %>% .[, 1:6])
 
 plot(fifth_split_grp2_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/fifth_split_grp2_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/fifth_split_grp2_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 # ------ 3.6 sixth split: in men: cannabis
 sixth_split_grp1_edge_accuracy <-
@@ -486,7 +535,11 @@ sixth_split_grp1_edge_accuracy <-
   )
 
 plot(sixth_split_grp1_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/sixth_split_grp1_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/sixth_split_grp1_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 
 sixth_split_grp2_edge_accuracy <-
@@ -496,7 +549,11 @@ sixth_split_grp2_edge_accuracy <-
 
 
 plot(sixth_split_grp2_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/sixth_split_grp2_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/sixth_split_grp2_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 # ------ 3.7 seventh split: in men: ethnicity
 seventh_split_grp1_edge_accuracy <-
@@ -510,7 +567,11 @@ seventh_split_grp1_edge_accuracy <-
   )
 
 plot(seventh_split_grp1_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/seventh_split_grp1_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/seventh_split_grp1_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 
 seventh_split_grp2_edge_accuracy <-
@@ -524,11 +585,14 @@ seventh_split_grp2_edge_accuracy <-
   )
 
 plot(seventh_split_grp2_edge_accuracy, order = "sample")
-ggsave("Supplement_Accuracy_Plots/seventh_split_grp2_edge_accuracy.tiff")
+ggsave(
+  "Supplement_Accuracy_Plots/seventh_split_grp2_edge_accuracy.tiff",
+  width = 5.13,
+  height = 6.77
+)
 
 # ---------------------- 5: Partial Correlation Matrices ----------------------
-# extract & export the partial correlation matrices of the estimated networks as .csv-files
-# NOTE: we zipped the folder "Supplement_Partial_Correlation_Matrices" for upload to Online Supplementary Materials
+# extract & export the partial correlation matrices of the plotted networks as .csv-files
 
 full_sample <- getWmat(qgraph(
   cor(data_missings_removed %>% .[, 1:6],
