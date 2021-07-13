@@ -174,7 +174,7 @@ data_apms %>%
 161 / nrow(data_apms)  # 0.02174794
 
 data_missings_removed <- data_apms  %>% na.omit()
-nrow(data_missings_removed) # 7242 (= total sample size)
+nrow(data_missings_removed) # 7242 (= total sample size used in analysis)
 
 # Table 1: whole sample
 # frequency data
@@ -214,8 +214,8 @@ data_missings_removed %>%
   mutate(across(
     where(is.factor),
     ~ case_when(
-      . %in% c("yes", "female") ~ 1,
-      . %in% c("no", "male") ~ 0,
+      . %in% c("yes") ~ 1,
+      . %in% c("no") ~ 0,
       TRUE ~ NA_real_
     )
   )) %>%
@@ -503,10 +503,10 @@ fifth_split <-
 
 
 nrow(data_missings_removed %>% filter(sex == "male" &
-                                        violence == "yes"))
+                                        violence == "yes")) # 156
 
 nrow(data_missings_removed %>% filter(sex == "male" &
-                                        violence == "no"))
+                                        violence == "no")) # 2971
 
 tiff(filename = "Main_Network_Plots/men_domestic_violence_yes.tiff",
     width = 800,
@@ -596,13 +596,13 @@ seventh_split <-
       sex == "male" &
         violence == "no" &
         cannabis == "no" &
-        ethnicity %in% c(2, 3)
+        ethnicity %in% c(2, 3) # Black, South Asian
     ) %>% .[, 1:6],
     data_missings_removed %>% filter(
       sex == "male" &
         violence == "no" &
         cannabis == "no" &
-        ethnicity %in% c(1, 4)
+        ethnicity %in% c(1, 4) # White, Mixed
     ) %>% .[, 1:6]
   )
 
@@ -610,15 +610,15 @@ nrow(data_missings_removed %>% filter(
   sex == "male" &
     violence == "no" &
     cannabis == "no" &
-    ethnicity %in% c(2, 3)
+    ethnicity %in% c(2, 3) # Black, South Asian
 )) # 161
 
 nrow(data_missings_removed %>% filter(
   sex == "male" &
     violence == "no" &
     cannabis == "no" &
-    ethnicity %in% c(1, 4)
-)) # 2,604
+    ethnicity %in% c(1, 4) # White, Mixed
+)) # 2604
 
 # plotting the respective subgroup network
 tiff(filename = "Main_Network_Plots/men_ethnic_minority.tiff",
