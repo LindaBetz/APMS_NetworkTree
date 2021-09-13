@@ -1,6 +1,6 @@
 # Heterogeneity in psychosis expression: sex-specific moderation effects of environmental risk factors on symptom networks
 
-R-code to reproduce analyses described in "Disentangling heterogeneity of psychosis expression in the general population: sex-specific moderation effects of environmental risk factors on symptom networks" by Linda T. Betz, Nora Penzel, Marlene Rosen, Kamaldeep Bhui, Rachel Upthegrove and Joseph Kambeitz.
+R-code to reproduce analyses described in "Disentangling heterogeneity of psychosis expression in the general population: sex-specific moderation effects of environmental risk factors on symptom networks" by Linda T. Betz, Nora Penzel, Marlene Rosen, Kamaldeep Bhui, Rachel Upthegrove and Joseph Kambeitz published in Psychological Medicine.
 
 Code by L. Betz (linda.betz@uk-koeln.de)
 
